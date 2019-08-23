@@ -18,7 +18,14 @@
             <el-container>
                 <!--左侧侧边栏-->
                 <el-aside style="width: 180px">
-
+                    <div style="padding-left: 10px">
+                        <i class="el-icon-edit" style="margin: 0;padding: 10px"></i>
+                        <i class="el-icon-share" style="margin: 0;padding: 10px"></i>
+                        <i class="el-icon-delete" style="margin: 0;padding: 10px"></i>
+                    </div>
+                    <div class="req-tree">
+                        <el-tree :data="data" :props="defaultProps" @node-click="handleNodeClick"></el-tree>
+                    </div>
                 </el-aside>
                 <!--主要区域容器-->
                 <el-main>
@@ -37,15 +44,8 @@
         components: {},
         data() {
             return {
-                temp: null,
-                cli: [],
-                info: null,
-                defaultProps: {
-                    children: 'children',
-                    label: 'label'
                 }
-            }
-        },
+            },
         methods: {
             getdata: function () {
                 var url = "http://127.0.0.1:8000/atf/testapi/";
@@ -80,20 +80,20 @@
     }
 
     .el-aside {
-        background-color: #D3DCE6;
+        background-color: #E9EEF3;
         color: #333;
-        text-align: center;
-        line-height: 160px;
+        /*text-align: center;*/
+        /*line-height: 160px;*/
     }
 
     .el-main {
-        background-color: #E9EEF3;
+        background-color: white;
         color: #333;
         text-align: center;
         line-height: 160px;
     }
 
-    .el-menu-item{
+    .el-menu-item {
     }
 
 </style>
