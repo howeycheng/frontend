@@ -17,7 +17,7 @@
             </el-header>
             <el-container>
                 <!--左侧侧边栏-->
-                <el-aside style="width: 180px">
+                <el-aside>
                     <div style="padding-left: 10px">
                         <i class="el-icon-edit" style="margin: 0;padding: 10px"></i>
                         <i class="el-icon-share" style="margin: 0;padding: 10px"></i>
@@ -55,48 +55,45 @@
         name: 'app',
         components: {},
         methods: {
+            getdata: function () {
+                var url = "http://127.0.0.1:8000/atf/req/";
+                // 发送请求:将数据返回到一个回到函数中
+                var that = this;
+                // 并且响应成功以后会执行then方法中的回调函数
+                axios.get(url, {
+                    params: {}
+                }).then(response => (that.info = response));
+            },
             loadNode(node, resolve) {
                 if (node.level === 0) {
                     var info = [];
                     var url = "http://127.0.0.1:8000/atf/req/";
                     // 发送请求:将数据返回到一个回到函数中
                     // 并且响应成功以后会执行then方法中的回调函数
-                    axios.get(url,{}).then(
-                        response => (info = response.data)
-                    );
-                    return resolve(info)
+                    axios.get(url, {}).then(
+                        response => {
+                            info = response.data;
+                            return resolve(info)
+                        }
+                    )
                     // 这里resolve的数据是后台给的,id用于之后点击发起请求时的参数
                 } else {
-                    this.getTreeChild(node.data.id, resolve)
+                    this.getTreeChild(node.data.rqid, resolve)
                 }
             },
             getTreeChild(id, resolve) {
+                var url = "http://127.0.0.1:8000/atf/req/";
                 // console.log(id)
                 //  这里可以替换成向后台发起的请求修改data,为了演示我用的是写死的数据,获取到data后,resolve出去就好了
-                if (id === '1') {
-                    const data = [{
-                        name: '第二级',
-                        code: '2222',
-                        leaf: true,
-                        child: []
-                    }, {
-                        name: '第二级02',
-                        child: [],
-                        id: '1'
-                    }]
-                    resolve(data)
-                } else {
-                    const data = [{
-                        name: '第二级33',
-                        code: '3333',
-                        leaf: true,
-                        child: []
-                    }, {
-                        name: '第二级02333',
-                        child: []
-                    }]
-                    resolve(data)
-                }
+                axios.get(url, {
+                    params: {
+                        rqid: id
+                    }
+                }).then(
+                    response => {
+                        return resolve(response.data)
+                    }
+                )
             }
         }
     }
