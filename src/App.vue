@@ -24,7 +24,19 @@
                         <i class="el-icon-delete" style="margin: 0;padding: 10px"></i>
                     </div>
                     <div class="req-tree">
-                        <el-tree :data="data" :props="defaultProps" @node-click="handleNodeClick"></el-tree>
+                        <el-tree
+                                :props="props"
+                                ref="tree"
+                                lazy
+                                :load="loadNode"
+                                node-key="rqid"
+                                :expand-on-click-node="false"
+                                @node-click="nodeClick"
+                                :filter-node-method="filterNode">
+                                <span class="tree-node" slot-scope="{ node, data }" :title="data.name">
+                                <span>{{ data.name }}</span>
+                                </span>
+                        </el-tree>
                     </div>
                 </el-aside>
                 <!--主要区域容器-->
@@ -42,23 +54,49 @@
     export default {
         name: 'app',
         components: {},
-        data() {
-            return {
+        methods: {
+            loadNode(node, resolve) {
+                if (node.level === 0) {
+                    var info = [];
+                    var url = "http://127.0.0.1:8000/atf/req/";
+                    // 发送请求:将数据返回到一个回到函数中
+                    // 并且响应成功以后会执行then方法中的回调函数
+                    axios.get(url,{}).then(
+                        response => (info = response.data)
+                    );
+                    return resolve(info)
+                    // 这里resolve的数据是后台给的,id用于之后点击发起请求时的参数
+                } else {
+                    this.getTreeChild(node.data.id, resolve)
                 }
             },
-        methods: {
-            getdata: function () {
-                var url = "http://127.0.0.1:8000/atf/testapi/";
-                // 发送请求:将数据返回到一个回到函数中
-                var that = this;
-                // 并且响应成功以后会执行then方法中的回调函数
-                axios.get(url, {
-                    params: {
-                        rqid: 0
-                    }
-                }).then(response => (that.info = response.data));
-
-
+            getTreeChild(id, resolve) {
+                // console.log(id)
+                //  这里可以替换成向后台发起的请求修改data,为了演示我用的是写死的数据,获取到data后,resolve出去就好了
+                if (id === '1') {
+                    const data = [{
+                        name: '第二级',
+                        code: '2222',
+                        leaf: true,
+                        child: []
+                    }, {
+                        name: '第二级02',
+                        child: [],
+                        id: '1'
+                    }]
+                    resolve(data)
+                } else {
+                    const data = [{
+                        name: '第二级33',
+                        code: '3333',
+                        leaf: true,
+                        child: []
+                    }, {
+                        name: '第二级02333',
+                        child: []
+                    }]
+                    resolve(data)
+                }
             }
         }
     }
@@ -82,8 +120,6 @@
     .el-aside {
         background-color: #E9EEF3;
         color: #333;
-        /*text-align: center;*/
-        /*line-height: 160px;*/
     }
 
     .el-main {
