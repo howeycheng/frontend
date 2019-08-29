@@ -34,14 +34,29 @@
                                 @node-click="nodeClick"
                                 :filter-node-method="filterNode">
                                 <span class="tree-node" slot-scope="{ node, data }" :title="data.name">
-                                <span>{{ data.name }}</span>
+                                    <span>{{ data.name }}</span>
                                 </span>
                         </el-tree>
                     </div>
                 </el-aside>
                 <!--主要区域容器-->
                 <el-main>
-                    主要区域容器
+                    <div class="main_div">
+                        <el-table
+                                :data="tableData"
+                                border="True"
+                                stripe="True"
+                                style="align-content: center">
+                            <el-table-column
+                                    prop=pk_id
+                                    label="场景ID">
+                            </el-table-column>
+                            <el-table-column
+                                    prop=scene_name
+                                    label="场景名称">
+                            </el-table-column>
+                        </el-table>
+                    </div>
                 </el-main>
             </el-container>
         </el-container>
@@ -52,6 +67,11 @@
     import axios from 'axios'
 
     export default {
+        data() {
+            return {
+                tableData: []
+            }
+        },
         name: 'app',
         components: {},
         methods: {
@@ -72,8 +92,6 @@
             },
             getTreeChild(id, resolve) {
                 var url = "http://127.0.0.1:8000/atf/req/";
-                // console.log(id)
-                //  这里可以替换成向后台发起的请求修改data,为了演示我用的是写死的数据,获取到data后,resolve出去就好了
                 axios.get(url, {
                     params: {
                         rqid: id
@@ -81,6 +99,18 @@
                 }).then(
                     response => {
                         return resolve(response.data)
+                    }
+                )
+            },
+            nodeClick(data, node) {
+                var url = "http://127.0.0.1:8000/atf/scene/";
+                axios.get(url, {
+                    params: {
+                        rqid: node.data.rqid
+                    }
+                }).then(
+                    response => {
+                        this.tableData = response.data
                     }
                 )
             }
