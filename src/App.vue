@@ -55,25 +55,14 @@
         name: 'app',
         components: {},
         methods: {
-            getdata: function () {
-                var url = "http://127.0.0.1:8000/atf/req/";
-                // 发送请求:将数据返回到一个回到函数中
-                var that = this;
-                // 并且响应成功以后会执行then方法中的回调函数
-                axios.get(url, {
-                    params: {}
-                }).then(response => (that.info = response));
-            },
             loadNode(node, resolve) {
                 if (node.level === 0) {
-                    var info = [];
                     var url = "http://127.0.0.1:8000/atf/req/";
                     // 发送请求:将数据返回到一个回到函数中
                     // 并且响应成功以后会执行then方法中的回调函数
                     axios.get(url, {}).then(
                         response => {
-                            info = response.data;
-                            return resolve(info)
+                            return resolve(response.data)
                         }
                     )
                     // 这里resolve的数据是后台给的,id用于之后点击发起请求时的参数
