@@ -9,9 +9,6 @@
         <div class="logo"></div>
         <div class="option">
           <span class="select">
-            <router-link to="/home">首页</router-link>
-          </span>
-          <span class="select">
             <router-link to="/companyProfile">测试需求</router-link>
           </span>
           <span class="select">
@@ -27,7 +24,7 @@
 
 <script>
   export default{
-    name:'headerIndex',
+    name:'headers',
   }
 </script>
 

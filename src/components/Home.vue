@@ -1,16 +1,19 @@
 <template>
     <div>
         <div>
-            <headerIndex></headerIndex>
+            <headers></headers>
+            <requirement></requirement>
         </div>
     </div>
 </template>
 <script>
-    import headerIndex from './header'
+    import headers from './header'
+    import requirement from "./Requirement";
     export default {
         name: "Home",
         components: {
-            headerIndex,
+            requirement,
+            headers
         }
     }
 </script>
