@@ -5,7 +5,7 @@
             <el-tabs id="tabs" v-model="activeName" @tab-click="handleClick">
                 <el-tab-pane label="组件配置" name="first">
                     <el-table
-                            :data="scenesSet"
+                            :data="scenesSets"
                             border="True"
                             style="align-content: center"
                             highlight-current-row>
@@ -40,13 +40,27 @@
                         </div>
                     </div>
                     <el-table
-                            :data="scenesCases"
+                            :data="[]"
                             border="True"
-                            style="align-content: center"
+                            style="align-content: center;width:auto"
+                            fit="True"
                             highlight-current-row>
+                        <!--组件-->
                         <el-table-column
-                                prop=name
-                                label="用例名称">
+                                prop="name"
+                                label="用例名称"
+                                width="120">
+                        </el-table-column>
+                        <el-table-column v-for="(scenesSet,index) in scenesSets"
+                                         :label="scenesSet.case_name"
+                                         align="center">
+                            <!--组件栏位-->
+                            <el-table-column v-for="scenesParam in scenesParams[index][scenesSet.case_name]"
+                                             :label="scenesParam.target_field"
+                                             prop=""
+                                             width="100%"
+                                             resizable="True">
+                            </el-table-column>
                         </el-table-column>
                     </el-table>
                 </el-tab-pane>
@@ -66,9 +80,12 @@
         },
         data() {
             return {
+                //获取路由传递过来的场景ID
                 id: this.$route.query.rqid,
-                scenesSet: [],
+                scenesSets: [],
                 scenesCases: [],
+                scenesCasesIo: [],
+                scenesParams: [],
                 activeName: 'first',
                 activeName2: 'first'
 
@@ -76,9 +93,16 @@
         },
         mounted: function () {
             this.getScenesSet(this.id);
+            this.getSceneParams(this.id)//自动加载组件值
             this.getScenesCases(this.id);
         },
         methods: {
+            //点击加载去除
+            // handleClick(tab) {
+            //     if (tab.label = '用例数据') {
+            //         this.getSceneParams(this.id)
+            //     }
+            // },
             getScenesSet(id) {
                 axios.get("http://127.0.0.1:8000/atf/sceneDetail/", {
                     params: {
@@ -86,7 +110,7 @@
                     }
                 }).then(
                     response => {
-                        this.scenesSet = response.data
+                        this.scenesSets = response.data
                     }
                 )
             },
@@ -101,6 +125,28 @@
                     }
                 )
             },
+            getScenesCasesIo(case_name) {
+                axios.get("http://127.0.0.1:8000/atf/casesDetail/", {
+                    params: {
+                        case_name: case_name
+                    }
+                }).then(
+                    response => {
+                        this.scenesCasesIo = response.data
+                    }
+                )
+            },
+            getSceneParams(rqid) {
+                axios.get("http://127.0.0.1:8000/atf/sceneParams/", {
+                    params: {
+                        rqid: rqid
+                    }
+                }).then(
+                    response => {
+                        this.scenesParams = response.data;
+                    }
+                )
+            }
         }
 
     }
