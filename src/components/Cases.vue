@@ -7,11 +7,27 @@
                     <el-table
                             :data="scenesSets"
                             border="True"
-                            style="align-content: center"
-                            highlight-current-row>
+                            style="align-content: center;width:auto;font-size: 8px;margin:0;line-height: 8px"
+                            highlight-current-row
+                            height="200px"
+                            :header-cell-style="{
+                                padding:0,
+                                margin:0,
+                                background:'white',
+                                color:'#2b303b',
+                                layout:'fixed'
+                            }"
+                            :cell-style="{
+                                padding:0,
+                                margin:0,
+                                background:'white',
+                                color:'#2b303b',
+                                layout:'fixed'
+                            }">
                         <el-table-column
                                 prop=case_name
-                                label="组件">
+                                label="组件名称"
+                        >
                         </el-table-column>
                     </el-table>
                     <div class="set_params">
@@ -26,43 +42,53 @@
                     </div>
                 </el-tab-pane>
                 <el-tab-pane label="用例数据" name="second">
+                    <el-table
+                            :data="scenesCases.slice((currentPage-1)*pageSize,currentPage*pageSize)"
+                            border="True"
+                            style="align-content: center;width:auto;font-size: 8px;margin:0;line-height: 8px"
+                            fit="True"
+                            height="500px"
+                            :header-cell-style="{
+                                padding:0,
+                                margin:0,
+                                background:'white',
+                                color:'#2b303b',
+                            }"
+                            :header-row-style="{
+                            }">
+                        <!--组件-->
+                        <el-table-column
+                                prop="name"
+                                label="用例名称">
+                        </el-table-column>
+                        <el-table-column v-for="(scenesSet,index) in scenesSets"
+                                         :label="scenesSet.case_name"
+                                         v-bind:key="scenesSet"
+                                         align="center"
+                                         :show-overflow-tooltip="true">
+                            <!--组件栏位-->
+                            <el-table-column v-for="scenesParam in scenesParams[index][scenesSet.case_name]"
+                                             :label="scenesParam.target_field"
+                                             prop=""
+                                             v-bind:key="scenesParam"
+                                             resizable="True"
+                                             width="100px">
+                            </el-table-column>
+                        </el-table-column>
+                    </el-table>
                     <div class="block">
                         <div class="block">
                             <el-pagination
                                     @size-change="handleSizeChange"
                                     @current-change="handleCurrentChange"
-                                    :current-page="currentPage4"
-                                    :page-sizes="[100, 200, 300, 400]"
-                                    :page-size="100"
+                                    :current-page="currentPage"
+                                    :page-sizes="[5, 10, 20, 30, 50, 100]"
+                                    :page-size="pageSize"
                                     layout="total, sizes, prev, pager, next, jumper"
-                                    :total="400">
+                                    :total="total">
                             </el-pagination>
                         </div>
                     </div>
-                    <el-table
-                            :data="[]"
-                            border="True"
-                            style="align-content: center;width:auto"
-                            fit="True"
-                            highlight-current-row>
-                        <!--组件-->
-                        <el-table-column
-                                prop="name"
-                                label="用例名称"
-                                width="120">
-                        </el-table-column>
-                        <el-table-column v-for="(scenesSet,index) in scenesSets"
-                                         :label="scenesSet.case_name"
-                                         align="center">
-                            <!--组件栏位-->
-                            <el-table-column v-for="scenesParam in scenesParams[index][scenesSet.case_name]"
-                                             :label="scenesParam.target_field"
-                                             prop=""
-                                             width="100%"
-                                             resizable="True">
-                            </el-table-column>
-                        </el-table-column>
-                    </el-table>
                 </el-tab-pane>
             </el-tabs>
         </div>
@@ -87,14 +113,16 @@
                 scenesCasesIo: [],
                 scenesParams: [],
                 activeName: 'first',
-                activeName2: 'first'
-
+                activeName2: 'first',
+                pageSize: 5,
+                currentPage: 1
             }
         },
         mounted: function () {
             this.getScenesSet(this.id);
             this.getSceneParams(this.id)//自动加载组件值
-            this.getScenesCases(this.id);
+            // this.getScenesCases(this.id);
+            this.tableRowClassName()
         },
         methods: {
             //点击加载去除
@@ -121,7 +149,8 @@
                     }
                 }).then(
                     response => {
-                        this.scenesCases = response.data
+                        this.scenesCases = response.data;
+                        this.total = this.scenesCases.length;
                     }
                 )
             },
@@ -137,6 +166,7 @@
                 )
             },
             getSceneParams(rqid) {
+                //获取场景组件栏位
                 axios.get("http://127.0.0.1:8000/atf/sceneParams/", {
                     params: {
                         rqid: rqid
@@ -146,15 +176,30 @@
                         this.scenesParams = response.data;
                     }
                 )
+            },
+            handleSizeChange(pageSize) {
+                //    修改每页条数
+                this.pageSize = pageSize;
+            },
+            handleCurrentChange(currentPage) {
+                //    修改当前业数
+                this.currentPage = currentPage;
+            },
+            tableRowClassName() {
+                return 'success-row';
             }
         }
 
     }
 </script>
 
-<style scoped>
+<style>
     #detail {
         padding-left: 30px;
     }
 
+    .block {
+        text-align: right;
+        margin-right: 10px;
+    }
 </style>

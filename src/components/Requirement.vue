@@ -31,11 +31,24 @@
                         <el-table
                                 :data="tableData"
                                 border="True"
-                                style="align-content: center"
-                                highlight-current-row>
+                                style="align-content: center;width:auto;font-size: 8px;margin:0;line-height: 8px"
+                                highlight-current-row
+                                fit="True"
+                                :header-cell-style="{
+                                padding:0,
+                                margin:0,
+                                background:'white',
+                                color:'#2b303b',
+                            }"
+                                :row-style="{
+                                padding:0,
+                                margin:0,
+                                height:'10px'
+                                }">
                             <el-table-column
                                     prop=pk_id
-                                    label="场景ID">
+                                    label="场景ID"
+                            >
                             </el-table-column>
                             <el-table-column
                                     prop=scene_name
@@ -160,5 +173,9 @@
 
     .el-main {
         padding: 0px;
+    }
+
+    .req-tree {
+        font-size: 12px;
     }
 </style>
