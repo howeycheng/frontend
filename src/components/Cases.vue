@@ -43,7 +43,8 @@
                 </el-tab-pane>
                 <el-tab-pane label="用例数据" name="second">
                     <el-table
-                            :data="scenesCases.slice((currentPage-1)*pageSize,currentPage*pageSize)"
+                            v-loading="pictLoading"
+                            :data="scenesCasesIo"
                             border="True"
                             style="align-content: center;width:auto;font-size: 8px;margin:0;line-height: 8px"
                             fit="True"
@@ -59,7 +60,9 @@
                         <!--组件-->
                         <el-table-column
                                 prop="name"
-                                label="用例名称">
+                                label="用例名称"
+                                width="500px"
+                                :show-overflow-tooltip="true">
                         </el-table-column>
                         <el-table-column v-for="(scenesSet,index) in scenesSets"
                                          :label="scenesSet.case_name"
@@ -69,10 +72,10 @@
                             <!--组件栏位-->
                             <el-table-column v-for="scenesParam in scenesParams[index][scenesSet.case_name]"
                                              :label="scenesParam.target_field"
-                                             prop=""
                                              v-bind:key="scenesParam"
                                              resizable="True"
-                                             width="100px">
+                                             width="100px"
+                                             :show-overflow-tooltip="true">
                             </el-table-column>
                         </el-table-column>
                     </el-table>
@@ -115,14 +118,16 @@
                 activeName: 'first',
                 activeName2: 'first',
                 pageSize: 5,
-                currentPage: 1
+                currentPage: 1,
+                pictLoading: false
             }
         },
         mounted: function () {
             this.getScenesSet(this.id);
             this.getSceneParams(this.id)//自动加载组件值
-            // this.getScenesCases(this.id);
-            this.tableRowClassName()
+            this.getScenesCases(this.id);
+            this.tableRowClassName();
+            this.getSceneCasesIo(this.id, this.currentPage, this.pageSize)
         },
         methods: {
             //点击加载去除
@@ -154,17 +159,6 @@
                     }
                 )
             },
-            getScenesCasesIo(case_name) {
-                axios.get("http://127.0.0.1:8000/atf/casesDetail/", {
-                    params: {
-                        case_name: case_name
-                    }
-                }).then(
-                    response => {
-                        this.scenesCasesIo = response.data
-                    }
-                )
-            },
             getSceneParams(rqid) {
                 //获取场景组件栏位
                 axios.get("http://127.0.0.1:8000/atf/sceneParams/", {
@@ -180,13 +174,31 @@
             handleSizeChange(pageSize) {
                 //    修改每页条数
                 this.pageSize = pageSize;
+                this.getSceneCasesIo(this.id, this.currentPage, this.pageSize);
             },
             handleCurrentChange(currentPage) {
                 //    修改当前业数
                 this.currentPage = currentPage;
+                this.getSceneCasesIo(this.id, this.currentPage, this.pageSize);
             },
             tableRowClassName() {
                 return 'success-row';
+            },
+            getSceneCasesIo(rqid, currentPage, pageSize) {
+                this.pictLoading = true;
+                //:data="scenesCases.slice((currentPage-1)*pageSize,currentPage*pageSize)"
+                axios.get("http://127.0.0.1:8000/atf/sceneCasesIo/", {
+                    params: {
+                        rqid: rqid,
+                        currentPage: currentPage,
+                        pageSize: pageSize,
+                    }
+                }).then(
+                    response => {
+                        this.scenesCasesIo = response.data;
+                        this.pictLoading = false;
+                    }
+                )
             }
         }
 
