@@ -44,6 +44,7 @@
                 <el-tab-pane label="用例数据" name="second">
                     <el-table
                             v-loading="pictLoading"
+                            lement-loading-text="拼命加载中"
                             :data="scenesCasesIo"
                             border="True"
                             style="align-content: center;width:auto;font-size: 8px;margin:0;line-height: 8px"
@@ -59,6 +60,7 @@
                             }">
                         <!--组件-->
                         <el-table-column
+                                fixed
                                 prop="name"
                                 label="用例名称"
                                 width="500px"
@@ -72,6 +74,7 @@
                             <!--组件栏位-->
                             <el-table-column v-for="scenesParam in scenesParams[index][scenesSet.case_name]"
                                              :label="scenesParam.target_field"
+                                             :prop="`sequence_${index+1}_${scenesParam.target_field}`"
                                              v-bind:key="scenesParam"
                                              resizable="True"
                                              width="100px"
