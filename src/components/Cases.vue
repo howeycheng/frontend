@@ -4,25 +4,20 @@
         <div id="detail">
             <el-tabs id="tabs" v-model="activeName" @tab-click="handleClick">
                 <el-tab-pane label="组件配置" name="first">
+                    <div style="padding-left: 10px">
+                        <i class="el-icon-remove-outline" style="margin: 0;padding: 10px"></i>
+                        <i class="el-icon-circle-plus-outline" style="margin: 0;padding: 10px"></i>
+                        <i class="el-icon-delete" style="margin: 0;padding: 10px"></i>
+                    </div>
                     <el-table
                             :data="scenesSets"
                             border="True"
                             style="align-content: center;width:auto;font-size: 8px;margin:0;line-height: 8px"
                             highlight-current-row
-                            height="200px"
+                            height="500px"
                             :header-cell-style="{
-                                padding:0,
-                                margin:0,
-                                background:'white',
-                                color:'#2b303b',
-                                layout:'fixed'
                             }"
                             :cell-style="{
-                                padding:0,
-                                margin:0,
-                                background:'white',
-                                color:'#2b303b',
-                                layout:'fixed'
                             }">
                         <el-table-column
                                 prop=case_name
@@ -31,9 +26,32 @@
                         </el-table-column>
                     </el-table>
                     <div class="set_params">
-                        <el-tabs v-model="activeName2" @tab-click="handleClick">
+                        <el-tabs v-model="activeName2" @tab-click="handleClick2">
+                            <div style="padding-left: 10px">
+                                <i class="el-icon-remove-outline" style="margin: 0;padding: 10px"></i>
+                                <i class="el-icon-circle-plus-outline" style="margin: 0;padding: 10px"></i>
+                                <i class="el-icon-delete" style="margin: 0;padding: 10px"></i>
+                            </div>
                             <el-tab-pane label="数值传递" name="first">
-                                用户管理
+                                <el-table
+                                        :data="setIo"
+                                        border="True"
+                                        style="align-content: center;width:auto;font-size: 8px;margin:0;line-height: 8px"
+                                        highlight-current-row
+                                        height="500px"
+                                        :header-cell-style="{}"
+                                        :cell-style="{}">
+                                    <el-table-column
+                                            prop="name"
+                                            label="源数据"
+                                            :show-overflow-tooltip="true">
+                                    </el-table-column>
+                                    <el-table-column
+                                            prop="assign"
+                                            label="目标栏位"
+                                            :show-overflow-tooltip="true">
+                                    </el-table-column>
+                                </el-table>
                             </el-tab-pane>
                             <el-tab-pane label="数值校验" name="second">
                                 配置管理
@@ -122,7 +140,8 @@
                 activeName2: 'first',
                 pageSize: 5,
                 currentPage: 1,
-                pictLoading: false
+                pictLoading: false,
+                setIo: []
             }
         },
         mounted: function () {
@@ -133,12 +152,11 @@
             this.getSceneCasesIo(this.id, this.currentPage, this.pageSize)
         },
         methods: {
-            //点击加载去除
-            // handleClick(tab) {
-            //     if (tab.label = '用例数据') {
-            //         this.getSceneParams(this.id)
-            //     }
-            // },
+            handleClick2(tab) {
+                if (tab.label === '数值传递') {
+                    this.getSetIo(this.id, '3')
+                }
+            },
             getScenesSet(id) {
                 axios.get("http://127.0.0.1:8000/atf/sceneDetail/", {
                     params: {
@@ -202,9 +220,20 @@
                         this.pictLoading = false;
                     }
                 )
+            },
+            getSetIo(rqid, type) {
+                axios.get("http://127.0.0.1:8000/atf/sceneSetIo/", {
+                    params: {
+                        rqid: rqid,
+                        type: type
+                    }
+                }).then(
+                    response => {
+                        this.setIo = response.data;
+                    }
+                )
             }
         }
-
     }
 </script>
 
