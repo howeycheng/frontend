@@ -5,6 +5,7 @@ import Router from 'vue-router'
 import Home from '../components/Home'
 import Login from '../components/Login'
 import Cases from '../components/Cases'
+import requirement from '../components/Requirement'
 
 Vue.use(Router);
 export default new Router({
@@ -24,6 +25,11 @@ export default new Router({
             path: '/cases',
             name: 'Cases',
             component: Cases
+        },
+        {
+            path: '/requirement',
+            name: 'requirement',
+            component: requirement
         }
     ],
 })

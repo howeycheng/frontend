@@ -1,12 +1,17 @@
 <template>
     <div>
-        <div class="icon">
-            自动化测试平台
-        </div>
         <div class="login_form">
-            <input type="text"  class="username"  placeholder="用户名" v-model="userName">
-            <input type="text"  class="password"  placeholder="密码" v-model="password">
-            <el-button class="login_btn" @click.native="login" type="primary" round :loading="isBtnLoading">登录</el-button>
+            <img src="../assets/title.png" alt="" class="icon">
+            <div class="text">
+                自动化测试平台
+            </div>
+            <div class="login_text">
+                <input type="text" class="username" placeholder="用户名" v-model="userName">
+                <input type="text" class="password" placeholder="密码" v-model="password">
+                <el-button class="login_btn" @click.native="login" type="primary" round :loading="isBtnLoading">登录
+                </el-button>
+
+            </div>
         </div>
     </div>
 </template>
@@ -30,20 +35,25 @@
                 //     return;
                 // }
                 // if (this.userName&&this.password) {
-                    this.$router.push({path: '/home'})
+                this.$router.push({path: '/home'})
                 // }
             }
         }
     }
 </script>
-<style>
-    .icon{
+<style slot-scope="">
+    .login_form {
         text-align: center;
-        margin-top: 200px;
+        margin-top: 180px;
     }
-    .login_form{
-        text-align: center;
-        margin-top: 30px;
+
+    .text {
+        margin-top: 10px;
+        font-size: 30px;
+    }
+
+    .login_text{
+        margin-top: 10px;
     }
 
 </style>

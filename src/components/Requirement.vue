@@ -1,95 +1,102 @@
 <template>
-    <div id="Requirement">
-        <el-container style="background-color: white;height: 100%;min-height: 100vh;" direction="vertical">
-            <el-container>
-                <!--左侧侧边栏-->
-                <el-aside>
-                    <div style="padding-left: 10px">
-                        <i class="el-icon-edit" style="margin: 0;padding: 10px"></i>
-                        <i class="el-icon-share" style="margin: 0;padding: 10px"></i>
-                        <i class="el-icon-delete" style="margin: 0;padding: 10px"></i>
-                    </div>
-                    <div class="req-tree">
-                        <el-tree
-                                :props="props"
-                                ref="tree"
-                                lazy
-                                :load="loadNode"
-                                node-key="rqid"
-                                :expand-on-click-node="false"
-                                @node-click="nodeClick"
-                                :filter-node-method="filterNode">
+    <div>
+        <div>
+            <headers></headers>
+        </div>
+        <div id="Requirement">
+            <el-container style="background-color: white;height: 100%;min-height: 100vh;" direction="vertical">
+                <el-container>
+                    <!--左侧侧边栏-->
+                    <el-aside>
+                        <div style="padding-left: 10px">
+                            <i class="el-icon-edit" style="margin: 0;padding: 10px"></i>
+                            <i class="el-icon-share" style="margin: 0;padding: 10px"></i>
+                            <i class="el-icon-delete" style="margin: 0;padding: 10px"></i>
+                        </div>
+                        <div class="req-tree">
+                            <el-tree
+                                    :props="props"
+                                    ref="tree"
+                                    lazy
+                                    :load="loadNode"
+                                    node-key="rqid"
+                                    :expand-on-click-node="false"
+                                    @node-click="nodeClick">
                                 <span class="tree-node" slot-scope="{ node, data }" :title="data.name">
                                     <span>{{ data.name }}</span>
                                 </span>
-                        </el-tree>
-                    </div>
-                </el-aside>
-                <!--主要区域容器-->
-                <el-main>
-                    <div class="main_div">
-                        <el-table
-                                :data="tableData"
-                                border="True"
-                                style="align-content: center;width:auto;font-size: 8px;margin:0;line-height: 8px"
-                                highlight-current-row
-                                fit="True"
-                                :header-cell-style="{
+                            </el-tree>
+                        </div>
+                    </el-aside>
+                    <!--主要区域容器-->
+                    <el-main>
+                        <div class="main_div">
+                            <el-table
+                                    :data="tableData"
+                                    border="True"
+                                    style="align-content: center;width:auto;font-size: 8px;margin:0;line-height: 8px"
+                                    highlight-current-row
+                                    fit="True"
+                                    :header-cell-style="{
                                 padding:0,
                                 margin:0,
                                 background:'white',
                                 color:'#2b303b',
                             }"
-                                :row-style="{
+                                    :row-style="{
                                 padding:0,
                                 margin:0,
                                 height:'10px'
                                 }">
-                            <el-table-column
-                                    prop=pk_id
-                                    label="场景ID"
-                            >
-                            </el-table-column>
-                            <el-table-column
-                                    prop=scene_name
-                                    label="场景名称">
-                            </el-table-column>
-                            <el-table-column label="操作">
-                                <template slot-scope="scope">
-                                    <el-button
-                                            size="mini"
-                                            @click="handleDetail(scope.row)">查看
-                                    </el-button>
-                                    <el-button
-                                            size="mini"
-                                            @click="handleEdit(scope.$index, scope.row)">编辑
-                                    </el-button>
-                                    <el-button
-                                            size="mini"
-                                            type="danger"
-                                            @click="handleDelete(scope.$index, scope.row)">删除
-                                    </el-button>
-                                </template>
-                            </el-table-column>
-                        </el-table>
-                    </div>
-                </el-main>
+                                <el-table-column
+                                        prop=pk_id
+                                        label="场景ID"
+                                >
+                                </el-table-column>
+                                <el-table-column
+                                        prop=scene_name
+                                        label="场景名称">
+                                </el-table-column>
+                                <el-table-column label="操作">
+                                    <template slot-scope="scope">
+                                        <el-button
+                                                size="mini"
+                                                @click="handleDetail(scope.row)">查看
+                                        </el-button>
+                                        <el-button
+                                                size="mini"
+                                                @click="handleEdit(scope.$index, scope.row)">编辑
+                                        </el-button>
+                                        <el-button
+                                                size="mini"
+                                                type="danger"
+                                                @click="handleDelete(scope.$index, scope.row)">删除
+                                        </el-button>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                        </div>
+                    </el-main>
+                </el-container>
             </el-container>
-        </el-container>
+        </div>
     </div>
 </template>
 
 <script>
     import axios from 'axios'
+    import headers from './header'
 
     export default {
+        components: {
+            headers
+        },
         name: 'requirement',
         data() {
             return {
                 tableData: []
             }
         },
-        components: {},
         methods: {
             loadNode(node, resolve) {
                 if (node.level === 0) {
@@ -126,7 +133,7 @@
                     }
                 }).then(
                     response => {
-                        this.tableData = response.data
+                        this.tableData = response.data;
                     }
                 )
             },
@@ -169,13 +176,12 @@
         color: #333;
         text-align: center;
         line-height: 160px;
-    }
-
-    .el-main {
         padding: 0px;
     }
 
-    .req-tree {
-        font-size: 12px;
+    .el-tree-node__content{
+        font-size: 14px;
+        background: #E9EEF3;
+        color: black;
     }
 </style>

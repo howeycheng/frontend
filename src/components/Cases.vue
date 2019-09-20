@@ -81,7 +81,7 @@
                                 fixed
                                 prop="name"
                                 label="用例名称"
-                                width="500px"
+                                width="300px"
                                 :show-overflow-tooltip="true">
                         </el-table-column>
                         <el-table-column v-for="(scenesSet,index) in scenesSets"
@@ -239,7 +239,8 @@
 
 <style>
     #detail {
-        padding-left: 30px;
+        padding-left: 20px;
+        padding-right: 20px;
     }
 
     .block {
