@@ -60,9 +60,15 @@
                     </div>
                 </el-tab-pane>
                 <el-tab-pane label="用例数据" name="second">
+                    <div style="padding-left: 10px">
+                        <i class="el-icon-remove-outline" style="margin: 0;padding: 10px"></i>
+                        <i class="el-icon-circle-plus-outline" style="margin: 0;padding: 10px"></i>
+                        <i class="el-icon-delete" style="margin: 0;padding: 10px"></i>
+                        <i class="el-icon-download" style="margin: 0;padding: 10px" @click="exportExcel"></i>
+                    </div>
                     <el-table
+                            id="casesTableExcel"
                             v-loading="pictLoading"
-                            lement-loading-text="拼命加载中"
                             :data="scenesCasesIo"
                             border="True"
                             style="align-content: center;width:auto;font-size: 8px;margin:0;line-height: 8px"
@@ -122,6 +128,8 @@
 <script>
     import axios from 'axios'
     import headers from './header'
+    import FileSaver from 'file-saver'
+    import XLSX from 'xlsx'
 
     export default {
         name: "Cases",
@@ -232,6 +240,22 @@
                         this.setIo = response.data;
                     }
                 )
+            },
+            exportExcel () {
+                /* generate workbook object from table */
+                var xlsxParam = { raw: true } // 导出的内容只做解析，不进行格式转换
+                var wb = XLSX.utils.table_to_book(document.querySelector('#casesTableExcel'), xlsxParam)
+
+                /* get binary string as output */
+                var wbout = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'array' })
+                try {
+                    FileSaver.saveAs(new Blob([wbout], { type: 'application/octet-stream' }), '审核情况表.xlsx')
+                } catch (e) {
+                    if (typeof console !== 'undefined') {
+                        // console.log(e, wbout)
+                    }
+                }
+                return wbout
             }
         }
     }

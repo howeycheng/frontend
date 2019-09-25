@@ -1,8 +1,8 @@
 <template>
     <div id="headers">
         <div class="title">
-            <img src="../assets/title.png" alt="" height="35px">
-            <div class="title-one">自动化测试平台</div>
+            <img class="title-img" src="../assets/title.png" alt="">
+            <span class="title-text">自动化测试平台</span>
         </div>
         <div>
             <el-menu
@@ -44,16 +44,23 @@
         width: 100%;
         background-color: #2b303b;
         padding-left: 20px;
+
+
     }
 
-    .title-one {
-        font-size: 20px;
-        align-items: center;
+    .title .title-img{
+        height: 35px;
+        vertical-align: middle;
+        display: inline-block;
     }
 
-    .titleShow {
-        margin: 0 auto;
-        padding-left: 20px;
+    .title .title-text{
+        font-size: 18px;
+        color: white;
+        line-height: 35px;
+        display: inline-block;
+        vertical-align: middle;
+        padding-left: 6px;
     }
 
     .el-menu {
