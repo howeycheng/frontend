@@ -15,8 +15,8 @@
                     active-text-color="#00A4FF"
                     router>
                 <el-menu-item index="/requirement">测试需求</el-menu-item>
-                <el-menu-item index="1">用例执行</el-menu-item>
-                <el-menu-item index="2">日志管理</el-menu-item>
+                <el-menu-item index="/run">用例执行</el-menu-item>
+                <el-menu-item index="/log">日志管理</el-menu-item>
             </el-menu>
         </div>
 

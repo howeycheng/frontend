@@ -6,6 +6,8 @@ import Home from '../components/Home'
 import Login from '../components/Login'
 import Cases from '../components/Cases'
 import requirement from '../components/Requirement'
+import run from '../components/Run'
+import log from '../components/Log'
 
 Vue.use(Router);
 export default new Router({
@@ -30,6 +32,16 @@ export default new Router({
             path: '/requirement',
             name: 'requirement',
             component: requirement
+        },
+        {
+            path: '/run',
+            name: 'run',
+            component: run
+        },
+        {
+            path: '/log',
+            name: 'log',
+            component: log
         }
     ],
 })
