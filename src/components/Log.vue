@@ -1,5 +1,12 @@
 <template>
-    <headers></headers>
+    <div>
+        <headers></headers>
+        <div>
+
+        </div>
+    </div>
+
+
 </template>
 
 <script>
@@ -9,10 +16,13 @@
         name: "Log",
         components: {
             headers,
+        },
+        return: {
+            value1: false
         }
     }
 </script>
 
-<style scoped>
+<style>
 
 </style>

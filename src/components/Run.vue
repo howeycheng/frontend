@@ -1,6 +1,9 @@
 <template>
     <div>
         <headers></headers>
+        <div>
+
+        </div>
     </div>
 </template>
 
