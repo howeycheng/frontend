@@ -1,6 +1,6 @@
 <template>
     <div>
-        <headers></headers>
+        <headers activeIndex = '/requirement'></headers>
         <div id="detail">
             <el-tabs id="tabs" v-model="activeName" @tab-click="handleClick">
                 <el-tab-pane label="组件配置" name="first">
@@ -126,7 +126,6 @@
 </template>
 
 <script>
-    import axios from 'axios'
     import headers from './header'
     import FileSaver from 'file-saver'
     import XLSX from 'xlsx'
@@ -166,7 +165,7 @@
                 }
             },
             getScenesSet(id) {
-                axios.get("http://127.0.0.1:8000/atf/sceneDetail/", {
+                this.$axios.get("http://127.0.0.1:8000/atf/sceneDetail/", {
                     params: {
                         rqid: id
                     }
@@ -177,7 +176,7 @@
                 )
             },
             getScenesCases(id) {
-                axios.get("http://127.0.0.1:8000/atf/cases/", {
+                this.$axios.get("http://127.0.0.1:8000/atf/cases/", {
                     params: {
                         rqid: id
                     }
@@ -190,7 +189,7 @@
             },
             getSceneParams(rqid) {
                 //获取场景组件栏位
-                axios.get("http://127.0.0.1:8000/atf/sceneParams/", {
+                this.$axios.get("http://127.0.0.1:8000/atf/sceneParams/", {
                     params: {
                         rqid: rqid
                     }
@@ -216,7 +215,7 @@
             getSceneCasesIo(rqid, currentPage, pageSize) {
                 this.pictLoading = true;
                 //:data="scenesCases.slice((currentPage-1)*pageSize,currentPage*pageSize)"
-                axios.get("http://127.0.0.1:8000/atf/sceneCasesIo/", {
+                this.$axios.get("http://127.0.0.1:8000/atf/sceneCasesIo/", {
                     params: {
                         rqid: rqid,
                         currentPage: currentPage,
@@ -230,7 +229,7 @@
                 )
             },
             getSetIo(rqid, type) {
-                axios.get("http://127.0.0.1:8000/atf/sceneSetIo/", {
+                this.$axios.get("http://127.0.0.1:8000/atf/sceneSetIo/", {
                     params: {
                         rqid: rqid,
                         type: type

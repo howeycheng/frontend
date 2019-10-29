@@ -1,6 +1,6 @@
 <template>
     <div>
-        <headers></headers>
+        <headers activeIndex = '/log'></headers>
         <div>
 
         </div>

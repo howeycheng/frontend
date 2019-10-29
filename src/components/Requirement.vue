@@ -1,7 +1,7 @@
 <template>
     <div>
         <div>
-            <headers></headers>
+            <headers activeIndex = '/requirement'></headers>
         </div>
         <div id="Requirement">
             <el-container style="background-color: white;height: 100%;min-height: 100vh;" direction="vertical">
@@ -84,7 +84,6 @@
 </template>
 
 <script>
-    import axios from 'axios'
     import headers from './header'
 
     export default {
@@ -103,7 +102,7 @@
                     var url = "http://127.0.0.1:8000/atf/req/";
                     // 发送请求:将数据返回到一个回到函数中
                     // 并且响应成功以后会执行then方法中的回调函数
-                    axios.get(url, {}).then(
+                    this.$axios.get(url, {}).then(
                         response => {
                             return resolve(response.data)
                         }
@@ -115,7 +114,7 @@
             },
             getTreeChild(id, resolve) {
                 var url = "http://127.0.0.1:8000/atf/req/";
-                axios.get(url, {
+                this.$axios.get(url, {
                     params: {
                         rqid: id
                     }
@@ -127,7 +126,7 @@
             },
             nodeClick(data, node) {
                 var url = "http://127.0.0.1:8000/atf/scene/";
-                axios.get(url, {
+                this.$axios.get(url, {
                     params: {
                         rqid: node.data.rqid
                     }

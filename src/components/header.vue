@@ -19,22 +19,19 @@
                 <el-menu-item index="/log">日志管理</el-menu-item>
             </el-menu>
         </div>
-
     </div>
 </template>
 
 <script>
     export default {
         name: 'headers',
+        props:[
+            'activeIndex'
+        ],
         data() {
             return {
-                activeIndex: "/requirement",
             };
         },
-        methods: {
-            handleSelect() {
-            }
-        }
     }
 </script>
 
@@ -48,13 +45,13 @@
 
     }
 
-    .title .title-img{
+    .title .title-img {
         height: 35px;
         vertical-align: middle;
         display: inline-block;
     }
 
-    .title .title-text{
+    .title .title-text {
         font-size: 18px;
         color: white;
         line-height: 35px;

@@ -5,10 +5,12 @@ import 'element-ui/lib/theme-chalk/index.css'
 import router from './router'
 import iView from 'iview';
 import 'iview/dist/styles/iview.css';
+import axios from 'axios'
 
 Vue.config.productionTip = false;
 Vue.use(ElementUI);
 Vue.use(iView);
+Vue.prototype.$axios = axios;
 
 new Vue({
     render: h => h(App),
