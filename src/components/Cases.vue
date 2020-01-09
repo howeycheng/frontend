@@ -165,7 +165,7 @@
                 }
             },
             getScenesSet(id) {
-                this.$axios.get("http://127.0.0.1:8000/atf/sceneDetail/", {
+                this.$axios.get("http://122.51.44.31:8000/atf/sceneDetail/", {
                     params: {
                         rqid: id
                     }
@@ -176,7 +176,7 @@
                 )
             },
             getScenesCases(id) {
-                this.$axios.get("http://127.0.0.1:8000/atf/cases/", {
+                this.$axios.get("http://122.51.44.31:8000/atf/cases/", {
                     params: {
                         rqid: id
                     }
@@ -189,7 +189,7 @@
             },
             getSceneParams(rqid) {
                 //获取场景组件栏位
-                this.$axios.get("http://127.0.0.1:8000/atf/sceneParams/", {
+                this.$axios.get("http://122.51.44.31:8000/atf/sceneParams/", {
                     params: {
                         rqid: rqid
                     }
@@ -215,7 +215,7 @@
             getSceneCasesIo(rqid, currentPage, pageSize) {
                 this.pictLoading = true;
                 //:data="scenesCases.slice((currentPage-1)*pageSize,currentPage*pageSize)"
-                this.$axios.get("http://127.0.0.1:8000/atf/sceneCasesIo/", {
+                this.$axios.get("http://122.51.44.31:8000/atf/sceneCasesIo/", {
                     params: {
                         rqid: rqid,
                         currentPage: currentPage,
@@ -229,7 +229,7 @@
                 )
             },
             getSetIo(rqid, type) {
-                this.$axios.get("http://127.0.0.1:8000/atf/sceneSetIo/", {
+                this.$axios.get("http://122.51.44.31:8000/atf/sceneSetIo/", {
                     params: {
                         rqid: rqid,
                         type: type
