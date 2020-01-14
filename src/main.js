@@ -6,11 +6,14 @@ import router from './router'
 import iView from 'iview';
 import 'iview/dist/styles/iview.css';
 import axios from 'axios'
+import global from "./components/global";
+
 
 Vue.config.productionTip = false;
 Vue.use(ElementUI);
 Vue.use(iView);
 Vue.prototype.$axios = axios;
+    Vue.prototype.GLOBAL = global;
 
 new Vue({
     render: h => h(App),

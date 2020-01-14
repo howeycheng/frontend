@@ -41,7 +41,7 @@
         }
     }
 </script>
-<style slot-scope="">
+<style>
     .login_form {
         text-align: center;
         margin-top: 180px;
