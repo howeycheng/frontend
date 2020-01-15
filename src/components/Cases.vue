@@ -1,6 +1,6 @@
 <template>
     <div>
-        <headers activeIndex = '/requirement'></headers>
+        <headers activeIndex='/requirement'></headers>
         <div id="detail">
             <el-tabs id="tabs" v-model="activeName" @tab-click="handleClick">
                 <el-tab-pane label="组件配置" name="first">
@@ -165,7 +165,7 @@
                 }
             },
             getScenesSet(id) {
-                this.$axios.get("http://122.51.44.31:8000/atf/sceneDetail/", {
+                this.$axios.get(this.GLOBAL.httpUrl + "sceneDetail/", {
                     params: {
                         rqid: id
                     }
@@ -176,7 +176,7 @@
                 )
             },
             getScenesCases(id) {
-                this.$axios.get("http://122.51.44.31:8000/atf/cases/", {
+                this.$axios.get(this.GLOBAL.httpUrl + "cases/", {
                     params: {
                         rqid: id
                     }
@@ -189,7 +189,7 @@
             },
             getSceneParams(rqid) {
                 //获取场景组件栏位
-                this.$axios.get("http://122.51.44.31:8000/atf/sceneParams/", {
+                this.$axios.get(this.GLOBAL.httpUrl + "sceneParams/", {
                     params: {
                         rqid: rqid
                     }
@@ -215,7 +215,7 @@
             getSceneCasesIo(rqid, currentPage, pageSize) {
                 this.pictLoading = true;
                 //:data="scenesCases.slice((currentPage-1)*pageSize,currentPage*pageSize)"
-                this.$axios.get("http://122.51.44.31:8000/atf/sceneCasesIo/", {
+                this.$axios.get(this.GLOBAL.httpUrl + "sceneCasesIo/", {
                     params: {
                         rqid: rqid,
                         currentPage: currentPage,
@@ -229,7 +229,7 @@
                 )
             },
             getSetIo(rqid, type) {
-                this.$axios.get("http://122.51.44.31:8000/atf/sceneSetIo/", {
+                this.$axios.get(this.GLOBAL.httpUrl + "sceneSetIo/", {
                     params: {
                         rqid: rqid,
                         type: type
@@ -240,15 +240,15 @@
                     }
                 )
             },
-            exportExcel () {
+            exportExcel() {
                 /* generate workbook object from table */
-                var xlsxParam = { raw: true } // 导出的内容只做解析，不进行格式转换
+                var xlsxParam = {raw: true} // 导出的内容只做解析，不进行格式转换
                 var wb = XLSX.utils.table_to_book(document.querySelector('#casesTableExcel'), xlsxParam)
 
                 /* get binary string as output */
-                var wbout = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'array' })
+                var wbout = XLSX.write(wb, {bookType: 'xlsx', bookSST: true, type: 'array'})
                 try {
-                    FileSaver.saveAs(new Blob([wbout], { type: 'application/octet-stream' }), '审核情况表.xlsx')
+                    FileSaver.saveAs(new Blob([wbout], {type: 'application/octet-stream'}), '审核情况表.xlsx')
                 } catch (e) {
                     if (typeof console !== 'undefined') {
                         // console.log(e, wbout)

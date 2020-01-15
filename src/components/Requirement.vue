@@ -99,7 +99,7 @@
         methods: {
             loadNode(node, resolve) {
                 if (node.level === 0) {
-                    var url = "http://122.51.44.31:8000/atf/req/";
+                    var url = this.GLOBAL.httpUrl + "req/";
                     // 发送请求:将数据返回到一个回到函数中
                     // 并且响应成功以后会执行then方法中的回调函数
                     this.$axios.get(url, {}).then(
@@ -113,7 +113,7 @@
                 }
             },
             getTreeChild(id, resolve) {
-                var url = "http://122.51.44.31:8000/atf/req/";
+                var url = this.GLOBAL.httpUrl + "req/";
                 this.$axios.get(url, {
                     params: {
                         rqid: id
@@ -125,7 +125,7 @@
                 )
             },
             nodeClick(data, node) {
-                var url = "http://122.51.44.31:8000/atf/scene/";
+                var url = this.GLOBAL.httpUrl + "scene/";
                 this.$axios.get(url, {
                     params: {
                         rqid: node.data.rqid
