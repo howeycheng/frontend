@@ -47,7 +47,7 @@
         methods: {
             loadNode(node, resolve) {
                 if (node.level === 0) {
-                    var url = "http://122.51.44.31:8000/atf/set/";
+                    var url = this.GLOBAL.httpUrl + "set/";
                     // 发送请求:将数据返回到一个回到函数中
                     // 并且响应成功以后会执行then方法中的回调函数
                     this.$axios.get(url, {
@@ -65,7 +65,7 @@
                 }
             },
             getTreeChild(id, resolve) {
-                var url = "http://122.51.44.31:8000/atf/set/";
+                var url = this.GLOBAL.httpUrl + "set/";
                 this.$axios.get(url, {
                     params: {
                         level: 1,
