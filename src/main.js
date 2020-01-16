@@ -13,7 +13,7 @@ Vue.config.productionTip = false;
 Vue.use(ElementUI);
 Vue.use(iView);
 Vue.prototype.$axios = axios;
-    Vue.prototype.GLOBAL = global;
+Vue.prototype.GLOBAL = global;
 
 new Vue({
     render: h => h(App),

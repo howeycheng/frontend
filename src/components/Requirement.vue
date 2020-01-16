@@ -34,7 +34,7 @@
                             <el-table
                                     :data="tableData"
                                     border="True"
-                                    style="align-content: center;width:auto;font-size: 8px;margin:0;line-height: 8px"
+                                    style="align-content: center;width:auto;font-size: 0.6vw;margin:0;line-height: 0.6vw"
                                     highlight-current-row
                                     fit="True"
                                     :header-cell-style="{
@@ -179,7 +179,7 @@
     }
 
     .el-tree-node__content{
-        font-size: 14px;
+        font-size: 0.8vw;
         background: #E9EEF3;
         color: black;
     }

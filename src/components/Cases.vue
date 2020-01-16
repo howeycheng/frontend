@@ -12,7 +12,7 @@
                     <el-table
                             :data="scenesSets"
                             border="True"
-                            style="align-content: center;width:auto;font-size: 8px;margin:0;line-height: 8px"
+                            style="align-content: center;width:auto;font-size: 0.6vw;margin:0;line-height: 0.6vw"
                             highlight-current-row
                             height="500px"
                             :header-cell-style="{
@@ -36,7 +36,7 @@
                                 <el-table
                                         :data="setIo"
                                         border="True"
-                                        style="align-content: center;width:auto;font-size: 8px;margin:0;line-height: 8px"
+                                        style="align-content: center;width:auto;font-size: 0.6vw;margin:0;line-height: 0.6vw"
                                         highlight-current-row
                                         height="500px"
                                         :header-cell-style="{}"
@@ -71,7 +71,7 @@
                             v-loading="pictLoading"
                             :data="scenesCasesIo"
                             border="True"
-                            style="align-content: center;width:auto;font-size: 8px;margin:0;line-height: 8px"
+                            style="align-content: center;width:auto;font-size: 0.6vw;margin:0;line-height: 0.6vw"
                             fit="True"
                             height="500px"
                             :header-cell-style="{

@@ -1,6 +1,6 @@
 
 <script>
-    const httpUrl = 'http://122.51.44.31:8000/atf/';
+    const httpUrl = 'http://127.0.0.1:8000/atf/';
     export default {
         name: "global",
         httpUrl
