@@ -20,7 +20,7 @@
                                     lazy
                                     :load="loadNode"
                                     node-key="rqid"
-                                    :expand-on-click-node="false"
+                                    :expand-on-click-node="true"
                                     @node-click="nodeClick">
                                 <span class="tree-node" slot-scope="{ node, data }" :title="data.name">
                                     <span>{{ data.name }}</span>
