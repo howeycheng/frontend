@@ -19,6 +19,7 @@
                                     :load="loadSetNode"
                                     node-key="rqid"
                                     :expand-on-click-node="true"
+                                    @node-click="clickSetNode"
                             >
                                 <span class="tree-node" slot-scope="{ node, data }" :title="data.group_name">
                                     <span>{{ data.name }}</span>
@@ -31,13 +32,14 @@
                         <div>
                             <div class="set-tree">
                                 <el-tree
+                                        v-loading="caseLoading"
                                         :props="props"
                                         ref="reqTree"
-                                        :load="loadReqFatherNode"
+                                        :load="loadReqNode"
                                         lazy
-                                        node-key="rqid"
+                                        node-key="set"
                                         :expand-on-click-node="true"
-                                        show-checkbox="true">
+                                        show-checkbox>
                                 <span class="req-tree-node" slot-scope="{ node, data }" :title="data.name">
                                     <span>{{ data.name }}</span>
                                 </span>
@@ -47,7 +49,6 @@
                     </el-main>
                 </el-container>
             </el-container>
-
         </div>
     </div>
 </template>
@@ -62,7 +63,8 @@
         },
         data() {
             return {
-                setData: ''
+                setData: '',
+                caseLoading: false,
             }
         },
         methods: {
@@ -91,39 +93,75 @@
                     }).then(
                         response => {
                             if (response.data.length === 0) {
+                                node.isLeaf = true;
+                                var url2 = this.GLOBAL.httpUrl + "reqOfCase/";
                                 this.setData = node.data.table_name;
+                                this.$axios.get(url2, {
+                                    params: {
+                                        level: "0",
+                                        set: this.setData,
+                                        req: ""
+                                    }
+                                }).then(
+                                    response => {
+                                        this.$refs.reqTree.data = response.data;
+                                    }
+                                );
                             }
                             return resolve(response.data)
                         }
                     )
                 }
             },
-            loadReqFatherNode() {
-                var url = this.GLOBAL.httpUrl + "reqOfCase/";
-                // 发送请求:将数据返回到一个回到函数中
-                // 并且响应成功以后会执行then方法中的回调函数
-                this.$axios.get(url, {
-                    params: {
-                        set: "001"
-                    }
-                }).then(
-                    response => {
-                        this.$refs.reqTree.data = response.data
-                        // 通过this.$refs获取dom对象
-                    }
-                )
+            clickSetNode(data, node) {
+                if (node.isLeaf) {
+                    var url = this.GLOBAL.httpUrl + "reqOfCase/";
+                    //若节点为叶子节点，根据测试集查询该测试集下用例，生产新的测试用例树
+                    this.setData = node.data.table_name;
+                    this.$axios.get(url, {
+                        params: {
+                            level: "0",
+                            set: this.setData,
+                            req: ""
+                        }
+                    }).then(
+                        response => {
+                            this.$refs.reqTree.data = response.data;
+                        }
+                    );
+                }
             },
             loadReqNode(node, resolve) {
-                var url = this.GLOBAL.httpUrl + "reqFromSetTemp/";
-                this.$axios.get(url, {
-                    params: {
-                        req: "001"
-                    }
-                }).then(
-                    response => {
-                        return resolve(response.data)
-                    }
-                )
+                var url = this.GLOBAL.httpUrl + "reqOfCase/";
+                if (node.level === 0) {
+                    // 发送请求:将数据返回到一个回到函数中
+                    // 并且响应成功以后会执行then方法中的回调函数
+                    this.$axios.get(url, {
+                        params: {
+                            level: "0",
+                            set: this.setData,
+                            req: ""
+                        }
+                    }).then(
+                        response => {
+                            return resolve(response.data)
+                        }
+                    )
+                } else {
+                    this.$axios.get(url, {
+                        params: {
+                            level: node.level,
+                            set: "Set103",
+                            req: node.data.tier
+                        }
+                    }).then(
+                        response => {
+                            return resolve(response.data)
+                            // this.$refs.reqTree.data = response.data
+                            // 通过this.$refs获取dom对象
+                        }
+                    )
+                }
             },
             getReqTreeChild(id, resolve) {
                 var url = this.GLOBAL.httpUrl + "reqOfCase/";
