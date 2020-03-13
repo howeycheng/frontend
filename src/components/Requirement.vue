@@ -29,7 +29,7 @@
                         </div>
                     </el-aside>
                     <!--主要区域容器-->
-                    <el-main>
+                    <el-main id="requirement-main">
                         <div class="main_div">
                             <el-table
                                     :data="tableData"
@@ -170,7 +170,7 @@
         color: #333;
     }
 
-    .el-main {
+    #requirement-main {
         background-color: white;
         color: #333;
         text-align: center;
@@ -179,7 +179,7 @@
     }
 
     .el-tree-node__content{
-        font-size: 0.8vw;
+        font-size: 0.6vw;
         background: #E9EEF3;
         color: black;
     }

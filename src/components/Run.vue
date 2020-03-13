@@ -21,30 +21,33 @@
                                     :expand-on-click-node="true"
                                     @node-click="clickSetNode"
                             >
-                                <span class="tree-node" slot-scope="{ node, data }" :title="data.group_name">
+                                <span class="req-tree-node" slot-scope="{ node, data }" :title="data.name">
                                     <span>{{ data.name }}</span>
                                 </span>
                             </el-tree>
                         </div>
                     </el-aside>
-                    <el-main>
+                    <el-main id="run-main">
                         <!--主要区域容器-->
-                        <div>
-                            <div class="set-tree">
-                                <el-tree
-                                        v-loading="caseLoading"
-                                        :props="props"
-                                        ref="reqTree"
-                                        :load="loadReqNode"
-                                        lazy
-                                        node-key="set"
-                                        :expand-on-click-node="true"
-                                        show-checkbox>
-                                <span class="req-tree-node" slot-scope="{ node, data }" :title="data.name">
+                        <div id="run-main-ico">
+                            <el-button type="" icon="el-icon-circle-plus" size="small" ></el-button>
+                            <el-button type="" icon="el-icon-remove" size="small" ></el-button>
+                            <el-button type="" icon="el-icon-caret-right" size="small" ></el-button>
+                        </div>
+                        <div class="set-tree-div">
+                            <el-tree
+                                    id="set-tree"
+                                    :props="props"
+                                    ref="reqTree"
+                                    lazy
+                                    :load="loadReqNode"
+                                    node-key="set"
+                                    :expand-on-click-node="true"
+                                    show-checkbox>
+                                <span class="set-tree-node" slot-scope="{ node, data }" :title="data.name">
                                     <span>{{ data.name }}</span>
                                 </span>
-                                </el-tree>
-                            </div>
+                            </el-tree>
                         </div>
                     </el-main>
                 </el-container>
@@ -140,7 +143,7 @@
                         params: {
                             level: "0",
                             set: this.setData,
-                            req: ""
+                            tier: ""
                         }
                     }).then(
                         response => {
@@ -152,7 +155,7 @@
                         params: {
                             level: node.level,
                             set: "Set103",
-                            req: node.data.tier
+                            tier: node.data.tier
                         }
                     }).then(
                         response => {
@@ -163,23 +166,34 @@
                     )
                 }
             },
-            getReqTreeChild(id, resolve) {
-                var url = this.GLOBAL.httpUrl + "reqOfCase/";
-                this.$axios.get(url, {
-                    params: {
-                        level: 1,
-                        pk_id: id
-                    }
-                }).then(
-                    response => {
-                        return resolve(response.data)
-                    }
-                )
-            },
         }
     }
 </script>
 
 <style scoped>
+    #run-main {
+        color: white;
+    }
+
+    #run-main {
+        background-color: white;
+        color: #333;
+        text-align: left;
+        padding: 0px;
+    }
+
+    #run-main-ico{
+
+    }
+    #run-main .el-button{
+        margin-left: 0px;
+    }
+
+    #run-main-ico{
+        padding-left: 10px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        background-color: #f7f8fa;
+    }
 
 </style>
