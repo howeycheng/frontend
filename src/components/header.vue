@@ -63,4 +63,8 @@
     .el-menu {
         padding-left: 120px;
     }
+
+    .el-menu-item{
+        font-size: 16px;
+    }
 </style>

@@ -1,19 +1,19 @@
 <template>
     <div>
         <div>
-            <headers activeIndex = '/requirement'></headers>
+            <headers activeIndex='/requirement'></headers>
         </div>
         <div id="Requirement">
             <el-container style="background-color: white;height: 100%;min-height: 100vh;" direction="vertical">
                 <el-container>
                     <!--左侧侧边栏-->
-                    <el-aside>
+                    <el-aside id="requirement-left">
                         <div style="padding-left: 10px">
                             <i class="el-icon-edit" style="margin: 0;padding: 10px"></i>
                             <i class="el-icon-share" style="margin: 0;padding: 10px"></i>
                             <i class="el-icon-delete" style="margin: 0;padding: 10px"></i>
                         </div>
-                        <div class="req-tree">
+                        <div id="req-tree">
                             <el-tree
                                     :props="props"
                                     ref="tree"
@@ -178,9 +178,10 @@
         padding: 0px;
     }
 
-    .el-tree-node__content{
+    .el-tree-node__content {
         font-size: 0.6vw;
         background: #E9EEF3;
+        /*background-color: darkcyan;*/
         color: black;
     }
 </style>

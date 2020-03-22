@@ -30,9 +30,11 @@
                     <el-main id="run-main">
                         <!--主要区域容器-->
                         <div id="run-main-ico">
-                            <el-button type="" icon="el-icon-circle-plus" size="small"></el-button>
-                            <el-button type="" icon="el-icon-remove" size="small"></el-button>
-                            <el-button type="" icon="el-icon-caret-right" size="small"></el-button>
+                            <el-button type="primary" icon="el-icon-edit"></el-button>
+                            <el-button type="primary" icon="el-icon-share"></el-button>
+                            <el-button type="primary" icon="el-icon-delete"></el-button>
+                            <el-button type="primary" icon="el-icon-search">搜索</el-button>
+                            <el-button type="primary">执行<i class="el-icon-caret-right el-icon--right"></i></el-button>
                         </div>
                         <div class="set-tree-div" v-loading.body="caseLoading">
                             <el-tree
@@ -111,7 +113,6 @@
                                     response => {
                                         caseLoadingIns.close();
                                         this.$refs.reqTree.data = response.data;
-
                                     }
                                 );
                             }
@@ -189,11 +190,10 @@
     }
 
     #run-main-ico {
-
     }
 
     #run-main .el-button {
-        margin-left: 0px;
+        margin-left: 10px;
     }
 
     #run-main-ico {
@@ -201,6 +201,10 @@
         padding-top: 10px;
         padding-bottom: 10px;
         background-color: #f7f8fa;
+    }
+
+    .set-tree-div > .el-tree-node__content {
+        background: cadetblue;
     }
 
 </style>
