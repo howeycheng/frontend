@@ -30,11 +30,11 @@
                     <el-main id="run-main">
                         <!--主要区域容器-->
                         <div id="run-main-ico">
-                            <el-button type="" icon="el-icon-circle-plus" size="small" ></el-button>
-                            <el-button type="" icon="el-icon-remove" size="small" ></el-button>
-                            <el-button type="" icon="el-icon-caret-right" size="small" ></el-button>
+                            <el-button type="" icon="el-icon-circle-plus" size="small"></el-button>
+                            <el-button type="" icon="el-icon-remove" size="small"></el-button>
+                            <el-button type="" icon="el-icon-caret-right" size="small"></el-button>
                         </div>
-                        <div class="set-tree-div">
+                        <div class="set-tree-div" v-loading.body="caseLoading">
                             <el-tree
                                     id="set-tree"
                                     :props="props"
@@ -58,6 +58,7 @@
 
 <script>
     import headers from './header'
+    import {Loading} from 'element-ui';
 
     export default {
         name: "run",
@@ -96,6 +97,7 @@
                     }).then(
                         response => {
                             if (response.data.length === 0) {
+                                let caseLoadingIns = Loading.service({fullscreen: false, text: '加载测试集...'});
                                 node.isLeaf = true;
                                 var url2 = this.GLOBAL.httpUrl + "reqOfCase/";
                                 this.setData = node.data.table_name;
@@ -107,7 +109,9 @@
                                     }
                                 }).then(
                                     response => {
+                                        caseLoadingIns.close();
                                         this.$refs.reqTree.data = response.data;
+
                                     }
                                 );
                             }
@@ -118,6 +122,7 @@
             },
             clickSetNode(data, node) {
                 if (node.isLeaf) {
+                    let caseLoadingIns = Loading.service({fullscreen: false, text: '加载测试集...'});
                     var url = this.GLOBAL.httpUrl + "reqOfCase/";
                     //若节点为叶子节点，根据测试集查询该测试集下用例，生产新的测试用例树
                     this.setData = node.data.table_name;
@@ -129,6 +134,7 @@
                         }
                     }).then(
                         response => {
+                            caseLoadingIns.close();
                             this.$refs.reqTree.data = response.data;
                         }
                     );
@@ -182,14 +188,15 @@
         padding: 0px;
     }
 
-    #run-main-ico{
+    #run-main-ico {
 
     }
-    #run-main .el-button{
+
+    #run-main .el-button {
         margin-left: 0px;
     }
 
-    #run-main-ico{
+    #run-main-ico {
         padding-left: 10px;
         padding-top: 10px;
         padding-bottom: 10px;
