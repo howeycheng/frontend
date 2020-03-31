@@ -34,7 +34,8 @@
                             <el-button type="primary" icon="el-icon-share"></el-button>
                             <el-button type="primary" icon="el-icon-delete"></el-button>
                             <el-button type="primary" icon="el-icon-search">搜索</el-button>
-                            <el-button type="primary">执行<i class="el-icon-caret-right el-icon--right"></i></el-button>
+                            <el-button type="primary" @click="run">执行<i class="el-icon-caret-right el-icon--right"></i>
+                            </el-button>
                         </div>
                         <div class="set-tree-div" v-loading.body="caseLoading">
                             <el-tree
@@ -74,6 +75,38 @@
             }
         },
         methods: {
+            run() {
+                let checkedCases = this.$refs.reqTree.getCheckedNodes();
+                let checkedCasesSetName = "";
+                for (let i = 0; i < checkedCases.length; i++) {
+                    if (checkedCases[i].pk_id.indexOf("Set") > -1){
+                        checkedCasesSetName = checkedCasesSetName + "," + checkedCases[i].pk_id;
+                    }
+                }
+                this.$message({
+                    showClose: true,
+                    message: checkedCasesSetName,
+                    type: 'success'
+                });
+
+                // this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+                //     confirmButtonText: '确定',
+                //     cancelButtonText: '取消',
+                //     type: 'warning',
+                //     center: true
+                // }).then(() => {
+                //     this.$message({
+                //         type: 'success',
+                //         message: '删除成功!'
+                //     });
+                // }).catch(() => {
+                //     this.$message({
+                //         type: 'info',
+                //         message: '已取消删除'
+                //     });
+                // });
+
+            },
             loadSetNode(node, resolve) {
                 var url = this.GLOBAL.httpUrl + "set/";
                 if (node.level === 0) {
