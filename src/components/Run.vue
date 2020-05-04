@@ -217,16 +217,6 @@
                         }
                     )
                 }
-                // setTimeout(() => {
-                //     const data = [{
-                //         name: 'leaf',
-                //         leaf: true
-                //     }, {
-                //         name: 'zone'
-                //     }];
-                //
-                //     resolve(data);
-                // }, 500);
             },
         }
     }
