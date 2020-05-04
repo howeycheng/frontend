@@ -40,7 +40,7 @@
                         <div class="set-tree-div" v-loading.body="caseLoading">
                             <el-tree
                                     id="set-tree"
-                                    :props="props"
+                                    :props="setTreeProps"
                                     ref="reqTree"
                                     lazy
                                     :load="loadReqNode"
@@ -72,6 +72,9 @@
             return {
                 setData: '',
                 caseLoading: false,
+                setTreeProps: {
+                    isLeaf: 'leaf'
+                }
             }
         },
         methods: {
@@ -79,7 +82,7 @@
                 let checkedCases = this.$refs.reqTree.getCheckedNodes();
                 let checkedCasesSetName = "";
                 for (let i = 0; i < checkedCases.length; i++) {
-                    if (checkedCases[i].pk_id.indexOf("Set") > -1){
+                    if (checkedCases[i].pk_id.indexOf("Set") > -1) {
                         checkedCasesSetName = checkedCasesSetName + "," + checkedCases[i].pk_id;
                     }
                 }
@@ -199,12 +202,31 @@
                         }
                     }).then(
                         response => {
-                            return resolve(response.data)
+                            if (response.data.length === 0) {
+                                return resolve(response.data);
+                            }
+                            if (response.data[0].tier.slice(-3) === '000') {
+                                //避免在用例节点前渲染下拉按钮
+                                for (var i = 0; i < response.data.length; i++) {
+                                    response.data[i].leaf = true;
+                                }
+                            }
+                            return resolve(response.data);
                             // this.$refs.reqTree.data = response.data
                             // 通过this.$refs获取dom对象
                         }
                     )
                 }
+                // setTimeout(() => {
+                //     const data = [{
+                //         name: 'leaf',
+                //         leaf: true
+                //     }, {
+                //         name: 'zone'
+                //     }];
+                //
+                //     resolve(data);
+                // }, 500);
             },
         }
     }
