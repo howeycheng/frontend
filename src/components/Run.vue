@@ -84,27 +84,26 @@
             run() {
                 let checkedCases = this.$refs.reqTree.getCheckedNodes();
                 let checkedCasesSetName = [];
-                // console.log(checkedCases);
                 for (let i = 0; i < checkedCases.length; i++) {
-                    // console.log(checkedCases[i].tier);
-                    // console.log(checkedCases[i].tier.indexOf("000"));
                     if (checkedCases[i].tier.indexOf("000") > -1) {
                         checkedCasesSetName.push(checkedCases[i].pk_id);
-                        let url = this.GLOBAL.httpUrl + "run/";
-                        this.$axios.get(url, {
-                            params: {
-                                nameSrvAddr: "127.0.0.1:9876",
-                                topic: "case",
-                                msg: checkedCases[i].pk_id
-                            }
-                        }).then(
-                            response => {
-                                console.log(response.data);
-                            }
-                        )
-                        this.GLOBAL.jobPercentage[0] = 100;
-
                     }
+                }
+                if (checkedCasesSetName.length !== 0) {
+                    let url = this.GLOBAL.httpUrl + "run/";
+                    this.$axios.get(url, {
+                        params: {
+                            nameSrvAddr: "127.0.0.1:9876",
+                            topic: "case",
+                            setNames: checkedCasesSetName.toString()
+                        }
+                    }).then(
+                        response => {
+                            // eslint-disable-next-line no-console
+                            console.log(response.data);
+                            this.GLOBAL.jobPercentage[0] = 100;
+                        }
+                    )
                 }
                 if (checkedCasesSetName.length === 0) {
                     //若未选中测试用例点击执行，弹出相应提示
@@ -120,24 +119,6 @@
                         type: 'success'
                     });
                 }
-
-                // this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
-                //     confirmButtonText: '确定',
-                //     cancelButtonText: '取消',
-                //     type: 'warning',
-                //     center: true
-                // }).then(() => {
-                //     this.$message({
-                //         type: 'success',
-                //         message: '删除成功!'
-                //     });
-                // }).catch(() => {
-                //     this.$message({
-                //         type: 'info',
-                //         message: '已取消删除'
-                //     });
-                // });
-
             },
             loadSetNode(node, resolve) {
                 let url = this.GLOBAL.httpUrl + "set/";
