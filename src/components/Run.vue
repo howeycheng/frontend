@@ -13,7 +13,7 @@
                         </div>
                         <div class="req-tree">
                             <el-tree
-                                    :props="props"
+                                    :props="reqTreeProps"
                                     ref="setTree"
                                     lazy
                                     :load="loadSetNode"
@@ -74,6 +74,9 @@
             return {
                 setData: '',
                 caseLoading: false,
+                reqTreeProps:{
+
+                },
                 setTreeProps: {
                     isLeaf: 'leaf'
                 }
@@ -82,20 +85,30 @@
         methods: {
             run() {
                 let checkedCases = this.$refs.reqTree.getCheckedNodes();
-                let checkedCasesSetName = "";
+                let checkedCasesSetName = [];
                 // console.log(checkedCases);
                 for (let i = 0; i < checkedCases.length; i++) {
                     // console.log(checkedCases[i].tier);
                     // console.log(checkedCases[i].tier.indexOf("000"));
                     if (checkedCases[i].tier.indexOf("000") > -1) {
-                        checkedCasesSetName = checkedCasesSetName + "," + checkedCases[i].pk_id;
+                        checkedCasesSetName.push(checkedCases[i].pk_id);
                     }
                 }
-                this.$message({
-                    showClose: true,
-                    message: checkedCasesSetName,
-                    type: 'success'
-                });
+                if (checkedCasesSetName.length === 0 ){
+                    //若未选中测试用例点击执行，弹出相应提示
+                    this.$message({
+                        showClose: true,
+                        message: "未选中测试用例",
+                        type: 'warning'
+                    });
+                }
+                else {
+                    this.$message({
+                        showClose: true,
+                        message: "开始执行" + checkedCasesSetName,
+                        type: 'success'
+                    });
+                }
 
                 // this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
                 //     confirmButtonText: '确定',

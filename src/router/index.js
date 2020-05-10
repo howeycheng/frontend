@@ -8,6 +8,7 @@ import Cases from '../components/Cases'
 import requirement from '../components/Requirement'
 import run from '../components/Run'
 import log from '../components/Log'
+import job from "../components/job";
 
 Vue.use(Router);
 export default new Router({
@@ -42,6 +43,11 @@ export default new Router({
             path: '/log',
             name: 'log',
             component: log
+        },
+        {
+            path: '/job',
+            name: 'job',
+            component: job
         }
     ],
 })

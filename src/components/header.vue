@@ -17,6 +17,7 @@
                 <el-menu-item index="/requirement">测试需求</el-menu-item>
                 <el-menu-item index="/run">用例执行</el-menu-item>
                 <el-menu-item index="/log">日志管理</el-menu-item>
+                <el-menu-item index="/job">任务</el-menu-item>
             </el-menu>
         </div>
     </div>
