@@ -74,9 +74,7 @@
             return {
                 setData: '',
                 caseLoading: false,
-                reqTreeProps:{
-
-                },
+                reqTreeProps: {},
                 setTreeProps: {
                     isLeaf: 'leaf'
                 }
@@ -92,17 +90,30 @@
                     // console.log(checkedCases[i].tier.indexOf("000"));
                     if (checkedCases[i].tier.indexOf("000") > -1) {
                         checkedCasesSetName.push(checkedCases[i].pk_id);
+                        let url = this.GLOBAL.httpUrl + "run/";
+                        this.$axios.get(url, {
+                            params: {
+                                nameSrvAddr: "127.0.0.1:9876",
+                                topic: "case",
+                                msg: checkedCases[i].pk_id
+                            }
+                        }).then(
+                            response => {
+                                console.log(response.data);
+                            }
+                        )
+                        this.GLOBAL.jobPercentage[0] = 100;
+
                     }
                 }
-                if (checkedCasesSetName.length === 0 ){
+                if (checkedCasesSetName.length === 0) {
                     //若未选中测试用例点击执行，弹出相应提示
                     this.$message({
                         showClose: true,
                         message: "未选中测试用例",
                         type: 'warning'
                     });
-                }
-                else {
+                } else {
                     this.$message({
                         showClose: true,
                         message: "开始执行" + checkedCasesSetName,
