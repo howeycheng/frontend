@@ -44,9 +44,11 @@
                                     ref="reqTree"
                                     lazy
                                     :load="loadReqNode"
+                                    @node-expand="setTreeExpand"
                                     node-key="set"
                                     :expand-on-click-node="true"
-                                    show-checkbox>
+                                    show-checkbox
+                                    @check="check">
                                 <span class="set-tree-node" slot-scope="{ node, data }" :title="data.name">
                                     <span>{{ data.name }}</span>
                                 </span>
@@ -81,8 +83,11 @@
             run() {
                 let checkedCases = this.$refs.reqTree.getCheckedNodes();
                 let checkedCasesSetName = "";
+                // console.log(checkedCases);
                 for (let i = 0; i < checkedCases.length; i++) {
-                    if (checkedCases[i].pk_id.indexOf("Set") > -1) {
+                    // console.log(checkedCases[i].tier);
+                    // console.log(checkedCases[i].tier.indexOf("000"));
+                    if (checkedCases[i].tier.indexOf("000") > -1) {
                         checkedCasesSetName = checkedCasesSetName + "," + checkedCases[i].pk_id;
                     }
                 }
@@ -111,7 +116,7 @@
 
             },
             loadSetNode(node, resolve) {
-                var url = this.GLOBAL.httpUrl + "set/";
+                let url = this.GLOBAL.httpUrl + "set/";
                 if (node.level === 0) {
                     // 发送请求:将数据返回到一个回调函数中
                     // 并且响应成功以后会执行then方法中的回调函数
@@ -137,7 +142,7 @@
                             if (response.data.length === 0) {
                                 let caseLoadingIns = Loading.service({fullscreen: false, text: '加载测试集...'});
                                 node.isLeaf = true;
-                                var url2 = this.GLOBAL.httpUrl + "reqOfCase/";
+                                let url2 = this.GLOBAL.httpUrl + "reqOfCase/";
                                 this.setData = node.data.table_name;
                                 this.$axios.get(url2, {
                                     params: {
@@ -160,7 +165,7 @@
             clickSetNode(data, node) {
                 if (node.isLeaf) {
                     let caseLoadingIns = Loading.service({fullscreen: false, text: '加载测试集...'});
-                    var url = this.GLOBAL.httpUrl + "reqOfCase/";
+                    let url = this.GLOBAL.httpUrl + "reqOfCase/";
                     //若节点为叶子节点，根据测试集查询该测试集下用例，生产新的测试用例树
                     this.setData = node.data.table_name;
                     this.$axios.get(url, {
@@ -178,7 +183,9 @@
                 }
             },
             loadReqNode(node, resolve) {
-                var url = this.GLOBAL.httpUrl + "reqOfCase/";
+                // 懒加载先保存当前选中的节点key, 展开后再设置一遍解决展开某选中节点后选中被取消的问题
+                if (this.$refs.reqTree !== undefined) this.checkedKeys = this.$refs.reqTree.getCheckedKeys();
+                let url = this.GLOBAL.httpUrl + "reqOfCase/";
                 if (node.level === 0) {
                     // 发送请求:将数据返回到一个回到函数中
                     // 并且响应成功以后会执行then方法中的回调函数
@@ -217,7 +224,33 @@
                         }
                     )
                 }
+                if (this.$refs.reqTree !== undefined) this.$refs.reqTree.setCheckedKeys(this.checkedKeys);
             },
+            check(data, node) {
+                if (node.checkedNodes.length !== 0) {
+                    //若节点状态为选中状态
+                    //循环遍历加载其子节点，并将所有子节点勾选状态设置为已勾选
+                    //     this.loadReqNode(node,this.resolve);
+                    //     console.log(node);
+                    //
+                    // }else {
+                    //     console.log(node);
+                }
+            },
+            setTreeExpand(data, node) {
+                node.expanded = true;
+                let childNodes = node.childNodes;
+                for (let i = childNodes.length - 1; i >= 0; i--) {
+                    // let child = childNodes[i];
+                }
+                // console.log("setTreeExpand");
+                let checkedStatus = node.checked;
+                if (checkedStatus === true) {
+                    //如果该节点已经被选中，将该节点下所有子节点勾选状态改为已选中
+                    // console.log("该节点已经被选中");
+
+                }
+            }
         }
     }
 </script>
