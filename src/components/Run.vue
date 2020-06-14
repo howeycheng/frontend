@@ -82,43 +82,56 @@
         },
         methods: {
             run() {
-                let checkedCases = this.$refs.reqTree.getCheckedNodes(true);
-                let checkedCasesSetName = [];
-
-                for (let i = 0; i < checkedCases.length; i++ ) {
-                    console.log(checkedCases.checked);
-                    checkedCasesSetName.push(checkedCases[i].id);
-                }
-                if (checkedCasesSetName.length !== 0) {
-                    let url = this.GLOBAL.httpUrl + "run/";
-                    this.$axios.get(url, {
-                        params: {
-                            nameSrvAddr: "127.0.0.1:9876",
-                            topic: "case",
-                            setNames: checkedCasesSetName.toString()
+                /*为解决懒加载tree,在未展开节点前，勾选父节点无法同时勾选其子节点的问题。通过筛选出未勾选用例的方式，从测试集所有用例中去除该部分用例，则是需要发起执行的用例。*/
+                // var checkedCases = [];
+                // let checkedCasesSetName = [];
+                var checkedNodes = [];
+                //遍历获取未被选中的节点
+                var traverse = function traverse(node) {
+                    var childNodes = node.root ? node.root.childNodes : node.childNodes;
+                    childNodes.forEach(function (child) {
+                        if (!child.checked && child.isLeaf) {
+                            checkedNodes.push(child.data);
                         }
-                    }).then(
-                        response => {
-                            // eslint-disable-next-line no-console
-                            console.log(response.data);
-                            this.GLOBAL.jobPercentage[0] = 100;
-                        }
-                    )
-                }
-                if (checkedCasesSetName.length === 0) {
-                    //若未选中测试用例点击执行，弹出相应提示
-                    this.$message({
-                        showClose: true,
-                        message: "未选中测试用例",
-                        type: 'warning'
+                        traverse(child);
                     });
-                } else {
-                    this.$message({
-                        showClose: true,
-                        message: "开始执行" + checkedCasesSetName,
-                        type: 'success'
-                    });
-                }
+                };
+                traverse(this.$refs.reqTree);
+                // eslint-disable-next-line no-console
+                console.log(checkedNodes);
+                // for (let i = 0; i < checkedCases.length; i++ ) {
+                //     checkedCasesSetName.push(checkedCases[i].id);
+                // }
+                // if (checkedCasesSetName.length !== 0) {
+                //     let url = this.GLOBAL.httpUrl + "run/";
+                //     this.$axios.get(url, {
+                //         params: {
+                //             nameSrvAddr: "127.0.0.1:9876",
+                //             topic: "case",
+                //             setNames: checkedCasesSetName.toString()
+                //         }
+                //     }).then(
+                //         response => {
+                //             // eslint-disable-next-line no-console
+                //             console.log(response.data);
+                //             this.GLOBAL.jobPercentage[0] = 100;
+                //         }
+                //     )
+                // }
+                // if (checkedCasesSetName.length === 0) {
+                //     //若未选中测试用例点击执行，弹出相应提示
+                //     this.$message({
+                //         showClose: true,
+                //         message: "未选中测试用例",
+                //         type: 'warning'
+                //     });
+                // } else {
+                //     this.$message({
+                //         showClose: true,
+                //         message: "开始执行" + checkedCasesSetName,
+                //         type: 'success'
+                //     });
+                // }
             },
             loadSetNode(node, resolve) {
                 //左边栏需求默认加载方法
