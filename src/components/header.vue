@@ -9,7 +9,6 @@
                     :default-active="activeIndex"
                     class="el-menu"
                     mode="horizontal"
-                    @select="handleSelect"
                     background-color="white"
                     text-color="black"
                     active-text-color="#00A4FF"

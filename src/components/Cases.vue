@@ -20,7 +20,7 @@
                             :cell-style="{
                             }">
                         <el-table-column
-                                prop=case_name
+                                prop=component_name
                                 label="组件名称"
                         >
                         </el-table-column>
@@ -91,12 +91,12 @@
                                 :show-overflow-tooltip="true">
                         </el-table-column>
                         <el-table-column v-for="(scenesSet,index) in scenesSets"
-                                         :label="scenesSet.case_name"
+                                         :label="scenesSet.component_name"
                                          v-bind:key="scenesSet"
                                          align="center"
                                          :show-overflow-tooltip="true">
                             <!--组件栏位-->
-                            <el-table-column v-for="scenesParam in scenesParams[index][scenesSet.case_name]"
+                            <el-table-column v-for="scenesParam in scenesParams[index][scenesSet.component_name]"
                                              :label="scenesParam.target_field"
                                              :prop="`sequence_${index+1}_${scenesParam.target_field}`"
                                              v-bind:key="scenesParam"

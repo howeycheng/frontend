@@ -15,11 +15,10 @@
                         </div>
                         <div id="req-tree">
                             <el-tree
-                                    :props="props"
                                     ref="tree"
                                     lazy
                                     :load="loadNode"
-                                    node-key="rqid"
+                                    node-key="id"
                                     :expand-on-click-node="true"
                                     @node-click="nodeClick">
                                 <span class="tree-node" slot-scope="{ node, data }" :title="data.name">
@@ -33,10 +32,10 @@
                         <div class="main_div">
                             <el-table
                                     :data="tableData"
-                                    border="True"
+                                    border
                                     style="align-content: center;width:auto;font-size: 0.6vw;margin:0;line-height: 0.6vw"
                                     highlight-current-row
-                                    fit="True"
+                                    fit
                                     :header-cell-style="{
                                 padding:0,
                                 margin:0,
@@ -49,7 +48,7 @@
                                 height:'10px'
                                 }">
                                 <el-table-column
-                                        prop=pk_id
+                                        prop=id
                                         label="场景ID"
                                 >
                                 </el-table-column>
@@ -109,7 +108,7 @@
                     )
                     // 这里resolve的数据是后台给的,id用于之后点击发起请求时的参数
                 } else {
-                    this.getTreeChild(node.data.rqid, resolve)
+                    this.getTreeChild(node.data.id, resolve)
                 }
             },
             getTreeChild(id, resolve) {
@@ -128,7 +127,7 @@
                 var url = this.GLOBAL.httpUrl + "scene/";
                 this.$axios.get(url, {
                     params: {
-                        rqid: node.data.rqid
+                        rqid: node.data.id
                     }
                 }).then(
                     response => {
@@ -141,7 +140,7 @@
                 const {href} = this.$router.resolve({
                     path: './cases',
                     query: {
-                        rqid: row['pk_id'],
+                        rqid: row['id'],
                     }
                 });
                 window.open(href, '_blank');

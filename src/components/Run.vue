@@ -13,7 +13,6 @@
                         </div>
                         <div class="req-tree">
                             <el-tree
-                                    :props="reqTreeProps"
                                     ref="setTree"
                                     lazy
                                     :load="loadSetNode"
@@ -44,6 +43,7 @@
                                     ref="reqTree"
                                     lazy
                                     :load="loadReqNode"
+                                    :key="timer"
                                     @node-expand="setTreeExpand"
                                     node-key="set"
                                     :expand-on-click-node="true"
@@ -74,20 +74,20 @@
             return {
                 setData: '',
                 caseLoading: false,
-                reqTreeProps: {},
                 setTreeProps: {
                     isLeaf: 'leaf'
-                }
+                },
+                timer: ''
             }
         },
         methods: {
             run() {
-                let checkedCases = this.$refs.reqTree.getCheckedNodes();
+                let checkedCases = this.$refs.reqTree.getCheckedNodes(true);
                 let checkedCasesSetName = [];
-                for (let i = 0; i < checkedCases.length; i++) {
-                    if (checkedCases[i].tier.indexOf("000") > -1) {
-                        checkedCasesSetName.push(checkedCases[i].pk_id);
-                    }
+
+                for (let i = 0; i < checkedCases.length; i++ ) {
+                    console.log(checkedCases.checked);
+                    checkedCasesSetName.push(checkedCases[i].id);
                 }
                 if (checkedCasesSetName.length !== 0) {
                     let url = this.GLOBAL.httpUrl + "run/";
@@ -121,6 +121,7 @@
                 }
             },
             loadSetNode(node, resolve) {
+                //左边栏需求默认加载方法
                 let url = this.GLOBAL.httpUrl + "set/";
                 if (node.level === 0) {
                     // 发送请求:将数据返回到一个回调函数中
@@ -131,7 +132,7 @@
                         }
                     }).then(
                         response => {
-                            return resolve(response.data)
+                            return resolve(response.data);
                         }
                     )
                     // 这里resolve的数据是后台给的,id用于之后点击发起请求时的参数
@@ -140,27 +141,16 @@
                     this.$axios.get(url, {
                         params: {
                             level: 1,
-                            pk_id: node.data.pk_id
+                            id: node.data.id
                         }
                     }).then(
                         response => {
                             if (response.data.length === 0) {
                                 let caseLoadingIns = Loading.service({fullscreen: false, text: '加载测试集...'});
                                 node.isLeaf = true;
-                                let url2 = this.GLOBAL.httpUrl + "reqOfCase/";
-                                this.setData = node.data.table_name;
-                                this.$axios.get(url2, {
-                                    params: {
-                                        level: "0",
-                                        set: this.setData,
-                                        req: ""
-                                    }
-                                }).then(
-                                    response => {
-                                        caseLoadingIns.close();
-                                        this.$refs.reqTree.data = response.data;
-                                    }
-                                );
+                                this.setData = node.data.set_id;
+                                this.timer = new Date().getTime();//每次点击测试集树，重新渲染测试用例树
+                                caseLoadingIns.close();
                             }
                             return resolve(response.data)
                         }
@@ -170,21 +160,9 @@
             clickSetNode(data, node) {
                 if (node.isLeaf) {
                     let caseLoadingIns = Loading.service({fullscreen: false, text: '加载测试集...'});
-                    let url = this.GLOBAL.httpUrl + "reqOfCase/";
-                    //若节点为叶子节点，根据测试集查询该测试集下用例，生产新的测试用例树
-                    this.setData = node.data.table_name;
-                    this.$axios.get(url, {
-                        params: {
-                            level: "0",
-                            set: this.setData,
-                            req: ""
-                        }
-                    }).then(
-                        response => {
-                            caseLoadingIns.close();
-                            this.$refs.reqTree.data = response.data;
-                        }
-                    );
+                    this.setData = node.data.set_id;
+                    this.timer = new Date().getTime();//每次点击测试集树，重新渲染测试用例树
+                    caseLoadingIns.close();
                 }
             },
             loadReqNode(node, resolve) {
@@ -192,7 +170,7 @@
                 if (this.$refs.reqTree !== undefined) this.checkedKeys = this.$refs.reqTree.getCheckedKeys();
                 let url = this.GLOBAL.httpUrl + "reqOfCase/";
                 if (node.level === 0) {
-                    // 发送请求:将数据返回到一个回到函数中
+                    // 发送请求:将数据返回到一个回调函数中
                     // 并且响应成功以后会执行then方法中的回调函数
                     this.$axios.get(url, {
                         params: {
@@ -204,12 +182,15 @@
                         response => {
                             return resolve(response.data)
                         }
-                    )
+                    ).catch(function (rejectedResult) {
+                        // eslint-disable-next-line no-console
+                            console.log(rejectedResult);
+                    })
                 } else {
                     this.$axios.get(url, {
                         params: {
                             level: node.level,
-                            set: "Set103",
+                            set: this.setData,
                             tier: node.data.tier
                         }
                     }).then(
