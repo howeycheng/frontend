@@ -82,63 +82,90 @@
         },
         methods: {
             run() {
-                /*为解决懒加载tree,在未展开节点前，勾选父节点无法同时勾选其子节点的问题。通过筛选出未勾选用例的方式，从测试集所有用例中去除该部分用例，则是需要发起执行的用例。*/
-                // var checkedCases = [];
-                // let checkedCasesSetName = [];
-                var checkedNodes = [];
-                //遍历获取未被选中的节点
-                var traverse = function traverse(node) {
-                    var childNodes = node.root ? node.root.childNodes : node.childNodes;
-                    childNodes.forEach(function (child) {
-                        if (!child.checked && child.isLeaf) {
-                            checkedNodes.push(child.data);
-                        }
-                        traverse(child);
+                /*
+                 *为解决懒加载tree,在未展开节点前，勾选父节点无法同时勾选其子节点的问题。通过筛选出未勾选用例的方式，从测试集所有用例中去除该部分用例，则是需要发起执行的用例。
+                 */
+                // 获取已勾选节点
+                let checkedNodes = this.$refs.reqTree.getCheckedNodes();
+                if (checkedNodes.length === 0) {
+                    // 未勾选节点，直接弹出提示
+                    this.$message({
+                        showClose: true,
+                        message: "未选中测试用例",
+                        type: 'warning'
                     });
-                };
-                traverse(this.$refs.reqTree);
-                // eslint-disable-next-line no-console
-                console.log(checkedNodes);
-                // for (let i = 0; i < checkedCases.length; i++ ) {
-                //     checkedCasesSetName.push(checkedCases[i].id);
-                // }
-                // if (checkedCasesSetName.length !== 0) {
-                //     let url = this.GLOBAL.httpUrl + "run/";
-                //     this.$axios.get(url, {
-                //         params: {
-                //             nameSrvAddr: "127.0.0.1:9876",
-                //             topic: "case",
-                //             setNames: checkedCasesSetName.toString()
-                //         }
-                //     }).then(
-                //         response => {
-                //             // eslint-disable-next-line no-console
-                //             console.log(response.data);
-                //             this.GLOBAL.jobPercentage[0] = 100;
-                //         }
-                //     )
-                // }
-                // if (checkedCasesSetName.length === 0) {
-                //     //若未选中测试用例点击执行，弹出相应提示
-                //     this.$message({
-                //         showClose: true,
-                //         message: "未选中测试用例",
-                //         type: 'warning'
-                //     });
-                // } else {
-                //     this.$message({
-                //         showClose: true,
-                //         message: "开始执行" + checkedCasesSetName,
-                //         type: 'success'
-                //     });
-                // }
+                } else {
+                    this.$message({
+                        showClose: true,
+                        message: "开始执行",
+                        type: 'success'
+                    });
+                    // 存在已勾选节点，进入下一步逻辑处理
+                    var unCheckedNodes = [];
+                    var unCheckedNodesLeaf = [];
+                    // 遍历获取未被选中的节点
+                    var traverse = function traverse(node) {
+                        var childNodes = node.root ? node.root.childNodes : node.childNodes;
+                        childNodes.forEach(function (child) {
+                            if (!(child.checked || child.indeterminate)) {
+                                // 若未选中的节点为非子叶节点，需要遍历其子节点,直到遍历至叶子节点上一层节点
+                                // eslint-disable-next-line no-console
+                                unCheckedNodesLeaf.push(child.data);
+                            }
+                            traverse(child);
+                        });
+                    };
+                    traverse(this.$refs.reqTree);
+                    // eslint-disable-next-line no-console
+                    console.log("unCheckedNodesLeaf", unCheckedNodesLeaf);
+
+                    let allReqOfSet = [];
+                    let reqOfSetUrl = this.GLOBAL.httpUrl + "reqOfSet/";
+                    unCheckedNodesLeaf.forEach(function (child) {
+                        let id = child.id;
+                        // 测试获取测试集下场景
+                        this.$axios.get(reqOfSetUrl, {
+                            params: {
+                                set: this.setData,
+                                id: id
+                            }
+                        }).then(response => {
+                            response.data.forEach(function (child) {
+                                allReqOfSet.push(child);
+                            });
+                        });
+                        // eslint-disable-next-line no-console
+                        console.log("allReqOfSet", allReqOfSet);
+                    })
+                    // eslint-disable-next-line no-console
+                    // console.log("unCheckedNodes", unCheckedNodes);
+                    // TODO 解决未选中节点为父节点，且其子节点未展开的场景
+                    // 获取当前选中测试集下所有用例
+                    let allCases = [];
+                    let casesInSetUrl = this.GLOBAL.httpUrl + "casesInSet/";
+                    this.$axios.get(casesInSetUrl, {
+                        params: {
+                            set: this.setData
+                        }
+                    }).then(
+                        response => {
+                            response.data.forEach(function (child) {
+                                // 从选中测试集的所有用例中去除未勾选的用例，获取到的即是需要执行的用例
+                                if (unCheckedNodes.indexOf(child.case_id) === -1) {
+                                    allCases.push(child.case_id);
+                                }
+                            });
+                        }
+                    )
+                    // eslint-disable-next-line no-console
+                    console.log("allCases", allCases);
+                }
             },
             loadSetNode(node, resolve) {
-                //左边栏需求默认加载方法
+                // 左边栏需求默认加载方法
                 let url = this.GLOBAL.httpUrl + "set/";
                 if (node.level === 0) {
                     // 发送请求:将数据返回到一个回调函数中
-                    // 并且响应成功以后会执行then方法中的回调函数
                     this.$axios.get(url, {
                         params: {
                             level: 0
@@ -197,7 +224,7 @@
                         }
                     ).catch(function (rejectedResult) {
                         // eslint-disable-next-line no-console
-                            console.log(rejectedResult);
+                        console.log(rejectedResult);
                     })
                 } else {
                     this.$axios.get(url, {
@@ -212,7 +239,7 @@
                                 return resolve(response.data);
                             }
                             if (response.data[0].tier.slice(-3) === '000') {
-                                //避免在用例节点前渲染下拉按钮
+                                // 避免在用例节点前渲染下拉按钮
                                 for (var i = 0; i < response.data.length; i++) {
                                     response.data[i].leaf = true;
                                 }
@@ -247,7 +274,6 @@
                 if (checkedStatus === true) {
                     //如果该节点已经被选中，将该节点下所有子节点勾选状态改为已选中
                     // console.log("该节点已经被选中");
-
                 }
             }
         }
