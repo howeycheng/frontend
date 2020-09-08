@@ -29,12 +29,31 @@
                     <el-main id="run-main">
                         <!--主要区域容器-->
                         <div id="run-main-ico">
-                            <el-button type="primary" icon="el-icon-edit"></el-button>
-                            <el-button type="primary" icon="el-icon-share"></el-button>
-                            <el-button type="primary" icon="el-icon-delete"></el-button>
-                            <el-button type="primary" icon="el-icon-search">搜索</el-button>
-                            <el-button type="primary" @click="run">执行<i class="el-icon-caret-right el-icon--right"></i>
-                            </el-button>
+                            <!--                            <el-button type="primary" icon="el-icon-edit"></el-button>-->
+                            <!--                            <el-button type="primary" icon="el-icon-share"></el-button>-->
+                            <!--                            <el-button type="primary" icon="el-icon-delete"></el-button>-->
+                            <!--                            <el-button type="primary" icon="el-icon-search">搜索</el-button>-->
+                            <!--                            <el-button type="primary" @click="run">执行[目前只支持全选执行]<i class="el-icon-caret-right el-icon&#45;&#45;right"></i>-->
+                            <!--                            </el-button>-->
+
+                            <Button type="primary" @click="run">执行[目前只支持全选执行]</Button>
+                            <Modal
+                                    v-model="modal1"
+                                    title="新建执行任务"
+                                    @on-ok="ok"
+                                    @on-cancel="cancel"
+                                    fullscreen>
+                                <div style="padding: 10px;background: #f8f8f9">
+                                    <Card title="Options" icon="ios-options" :padding="0" shadow style="width: 300px;">
+                                        <CellGroup>
+                                            <Cell title="执行名称"/>
+                                        </CellGroup>
+                                        <Cell title="With Switch">
+                                            <Switch v-model="switchValue" slot="extra"/>
+                                        </Cell>
+                                    </Card>
+                                </div>
+                            </Modal>
                         </div>
                         <div class="set-tree-div" v-loading.body="caseLoading">
                             <el-tree
@@ -72,6 +91,9 @@
         },
         data() {
             return {
+                switchValue: true,
+                modal1: false,
+                getReqLeafRes: [],
                 setData: '',
                 caseLoading: false,
                 setTreeProps: {
@@ -81,12 +103,28 @@
             }
         },
         methods: {
-            run() {
+            ok() {
+                this.$Message.info('Clicked ok');
+            },
+            cancel() {
+                this.$Message.info('Clicked cancel');
+            },
+            // 声明一个同步请求方法，给定场景ID和测试集ID,返回该场景ID的叶子场景ID
+            getReqLeaf: async function (set, id) {
+                var that = this;
+                this.getReqLeafRes = (await that.$axios.get(that.GLOBAL.httpUrl + "reqOfSet/", {
+                    params: {
+                        set: set,
+                        id: id
+                    }
+                })).data
+            },
+            run: async function () {
                 /*
                  *为解决懒加载tree,在未展开节点前，勾选父节点无法同时勾选其子节点的问题。通过筛选出未勾选用例的方式，从测试集所有用例中去除该部分用例，则是需要发起执行的用例。
                  */
                 // 获取已勾选节点
-                let checkedNodes = this.$refs.reqTree.getCheckedNodes();
+                var checkedNodes = this.$refs.reqTree.getCheckedNodes();
                 if (checkedNodes.length === 0) {
                     // 未勾选节点，直接弹出提示
                     this.$message({
@@ -101,47 +139,56 @@
                         type: 'success'
                     });
                     // 存在已勾选节点，进入下一步逻辑处理
-                    var unCheckedNodes = [];
-                    var unCheckedNodesLeaf = [];
-                    // 遍历获取未被选中的节点
-                    var traverse = function traverse(node) {
-                        var childNodes = node.root ? node.root.childNodes : node.childNodes;
-                        childNodes.forEach(function (child) {
-                            if (!(child.checked || child.indeterminate)) {
-                                // 若未选中的节点为非子叶节点，需要遍历其子节点,直到遍历至叶子节点上一层节点
-                                // eslint-disable-next-line no-console
-                                unCheckedNodesLeaf.push(child.data);
-                            }
-                            traverse(child);
-                        });
-                    };
-                    traverse(this.$refs.reqTree);
-                    // eslint-disable-next-line no-console
-                    console.log("unCheckedNodesLeaf", unCheckedNodesLeaf);
-
-                    let allReqOfSet = [];
-                    let reqOfSetUrl = this.GLOBAL.httpUrl + "reqOfSet/";
-                    unCheckedNodesLeaf.forEach(function (child) {
-                        let id = child.id;
-                        // 测试获取测试集下场景
-                        this.$axios.get(reqOfSetUrl, {
-                            params: {
-                                set: this.setData,
-                                id: id
-                            }
-                        }).then(response => {
-                            response.data.forEach(function (child) {
-                                allReqOfSet.push(child);
-                            });
-                        });
-                        // eslint-disable-next-line no-console
-                        console.log("allReqOfSet", allReqOfSet);
-                    })
-                    // eslint-disable-next-line no-console
+                    // var unCheckedNodesLeaf = [];
+                    // // 遍历获取未被选中的节点
+                    // var traverse = function traverse(node) {
+                    //     var childNodes = node.root ? node.root.childNodes : node.childNodes;
+                    //     childNodes.forEach(function (child) {
+                    //         if (!(child.checked || child.indeterminate)) {
+                    //             // 若未选中的节点为非子叶节点，需要遍历其子节点,直到遍历至叶子节点上一层节点
+                    //             unCheckedNodesLeaf.push(child.data);
+                    //         }
+                    //         traverse(child);
+                    //     });
+                    // };
+                    // traverse(this.$refs.reqTree);
+                    // var ReqLeaf = [];
+                    // // 存储未勾选的用例
+                    // var unCheckedNodes = [];
+                    // // let reqOfCaseUrl = this.GLOBAL.httpUrl + "reqOfCase/";
+                    // // 因该请求数据需在后面使用，所以要采用同步请求
+                    // for (let i = 0; i < unCheckedNodesLeaf.length; i++) {
+                    //     await this.getReqLeaf(this.setData, unCheckedNodesLeaf[0].id);
+                    //     this.getReqLeafRes.forEach(function (child) {
+                    //         if (ReqLeaf.indexOf(child) === -1) {
+                    //             ReqLeaf.push(child[0]);
+                    //         }
+                    //     })
+                    // }
+                    // // eslint-disable-next-line no-console
+                    // console.log("ReqLeaf.length", ReqLeaf.length);
+                    // let reqOfCaseUrl = this.GLOBAL.httpUrl + "reqOfSet/";
+                    // ReqLeaf.forEach(child => {
+                    //     // 根据叶子场景和测试集ID查询用例ID
+                    //     this.$axios.get(reqOfCaseUrl, {
+                    //         params: {
+                    //             level: "1",
+                    //             set: this.setData,
+                    //             tier: child.tier
+                    //         }
+                    //     }).then(response => {
+                    //         response.data.forEach(caseChild => {
+                    //             // eslint-disable-next-line no-console
+                    //             console.log(caseChild);
+                    //             unCheckedNodes.push(caseChild);
+                    //         });
+                    //     });
+                    // })
+                    // // eslint-disable-next-line no-console
                     // console.log("unCheckedNodes", unCheckedNodes);
                     // TODO 解决未选中节点为父节点，且其子节点未展开的场景
                     // 获取当前选中测试集下所有用例
-                    let allCases = [];
+                    var allCases = [];
                     let casesInSetUrl = this.GLOBAL.httpUrl + "casesInSet/";
                     this.$axios.get(casesInSetUrl, {
                         params: {
@@ -149,16 +196,19 @@
                         }
                     }).then(
                         response => {
-                            response.data.forEach(function (child) {
+                            response.data.forEach(child => {
                                 // 从选中测试集的所有用例中去除未勾选的用例，获取到的即是需要执行的用例
-                                if (unCheckedNodes.indexOf(child.case_id) === -1) {
-                                    allCases.push(child.case_id);
-                                }
+                                // if (unCheckedNodes.indexOf(child.case_id) === -1) {
+                                allCases.push(child.case_id);
+                                // }
                             });
                         }
                     )
-                    // eslint-disable-next-line no-console
-                    console.log("allCases", allCases);
+                    this.$message({
+                        showClose: true,
+                        message: allCases,
+                        type: 'success'
+                    });
                 }
             },
             loadSetNode(node, resolve) {
