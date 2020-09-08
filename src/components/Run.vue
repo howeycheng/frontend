@@ -36,7 +36,7 @@
                             <!--                            <el-button type="primary" @click="run">执行[目前只支持全选执行]<i class="el-icon-caret-right el-icon&#45;&#45;right"></i>-->
                             <!--                            </el-button>-->
 
-                            <Button type="primary" @click="run">执行[目前只支持全选执行]</Button>
+                            <Button type="primary" @click="test">执行[目前只支持全选执行]</Button>
                             <Modal
                                     v-model="modal1"
                                     title="新建执行任务"
@@ -102,6 +102,24 @@
             }
         },
         methods: {
+            test(){
+                var checkedNodes = this.$refs.reqTree.getCheckedNodes();
+                console.log(checkedNodes);
+                if (checkedNodes.length === 0) {
+                  this.$message({
+                    showClose: true,
+                    message: "未选中测试用例",
+                    type: 'warning'
+                  });
+                }
+                else {
+                  this.$message({
+                    showClose: true,
+                    message: checkedNodes,
+                    type: 'success'
+                  });
+                }
+            },
             ok() {
                 this.$Message.info('Clicked ok');
             },
@@ -138,19 +156,19 @@
                         type: 'success'
                     });
                     // 存在已勾选节点，进入下一步逻辑处理
-                    // var unCheckedNodesLeaf = [];
-                    // // 遍历获取未被选中的节点
-                    // var traverse = function traverse(node) {
-                    //     var childNodes = node.root ? node.root.childNodes : node.childNodes;
-                    //     childNodes.forEach(function (child) {
-                    //         if (!(child.checked || child.indeterminate)) {
-                    //             // 若未选中的节点为非子叶节点，需要遍历其子节点,直到遍历至叶子节点上一层节点
-                    //             unCheckedNodesLeaf.push(child.data);
-                    //         }
-                    //         traverse(child);
-                    //     });
-                    // };
-                    // traverse(this.$refs.reqTree);
+                    var unCheckedNodesLeaf = [];
+                    // 遍历获取未被选中的节点
+                    var traverse = function traverse(node) {
+                        var childNodes = node.root ? node.root.childNodes : node.childNodes;
+                        childNodes.forEach(function (child) {
+                            if (!(child.checked || child.indeterminate)) {
+                                // 若未选中的节点为非子叶节点，需要遍历其子节点,直到遍历至叶子节点上一层节点
+                                unCheckedNodesLeaf.push(child.data);
+                            }
+                            traverse(child);
+                        });
+                    };
+                    traverse(this.$refs.reqTree);
                     // var ReqLeaf = [];
                     // // 存储未勾选的用例
                     // var unCheckedNodes = [];
