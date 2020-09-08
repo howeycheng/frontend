@@ -41,8 +41,7 @@
                                     v-model="modal1"
                                     title="新建执行任务"
                                     @on-ok="ok"
-                                    @on-cancel="cancel"
-                                    fullscreen>
+                                    @on-cancel="cancel">
                                 <div style="padding: 10px;background: #f8f8f9">
                                     <Card title="Options" icon="ios-options" :padding="0" shadow style="width: 300px;">
                                         <CellGroup>
