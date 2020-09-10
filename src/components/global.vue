@@ -1,6 +1,6 @@
 
 <script>
-    const httpUrl = 'http://10.1.160.162:8000/atf/';
+    const httpUrl = 'http://127.0.0.1:8000/atf/';
     const jobPercentage = [];
     export default {
         name: "global",

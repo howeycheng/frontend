@@ -34,13 +34,16 @@
                                     v-model="modal1"
                                     title="新建执行任务"
                                     @on-ok="ok"
-                                    @on-cancel="cancel">
+                                    @on-cancel="cancel"
+                                    :draggable="true">
                                 <div style="padding: 10px;background: #f8f8f9">
                                         <Card title="选择执行器" icon="ios-options" :padding="0" shadow style="width: 300px;">
                                         <CellGroup>
                                           <Input v-model="ip" placeholder="执行器IP" />
                                           <br>
                                           <Input v-model="port" placeholder="端口" />
+                                          <br>
+                                          <Input v-model="topic" placeholder="主题" />
                                           <br>
                                         </CellGroup>
                                     </Card>
@@ -93,11 +96,14 @@
                 },
                 timer: '',
                 ip:'',
-                port:''
+                port:'',
+                topic:'',
+                casesToRun:[]
             }
         },
         methods: {
             run(){
+                this.casesToRun = [];
                 var checkedNodes = this.$refs.reqTree.getCheckedNodes();
                 if (checkedNodes.length === 0) {
                   this.$message({
@@ -107,7 +113,7 @@
                   });
                 }
                 else {
-                  this.modal1 = true;
+
                   var checkedCases = [];
 
                   for (let i = checkedNodes.length - 1; i >= 0; i--) {
@@ -123,8 +129,8 @@
                   }
                   ).then(
                       response => {
-                        // eslint-disable-next-line no-console
-                        console.log(response.data)
+                        this.casesToRun = response.data;
+                        this.modal1 = true;
                       }
                   ).catch(function (rejectedResult) {
                     // eslint-disable-next-line no-console
@@ -134,7 +140,23 @@
             },
             // 确认开始执行
             ok() {
-
+              let url = this.GLOBAL.httpUrl + "run/";
+              this.$axios.get(url, {
+                    params: {
+                      nameSrvAddr: this.ip + ":" +this.port,
+                      topic:this.topic,
+                      setNames:this.casesToRun.toString()
+                    }
+                  }
+              ).then(
+                  response => {
+                    // eslint-disable-next-line no-console
+                    console.log(response.data);
+                  }
+              ).catch(function (rejectedResult) {
+                // eslint-disable-next-line no-console
+                console.log(rejectedResult);
+              })
             },
             cancel() {
                 this.$Message.info('Clicked cancel');
