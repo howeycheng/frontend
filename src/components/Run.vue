@@ -150,6 +150,12 @@
                   }
               ).then(
                   response => {
+                    if (response.data.indexOf("exceptions") !== -1){
+                      this.$message({
+                        message: response.data,
+                        type: 'warning'
+                      });
+                    }
                     // eslint-disable-next-line no-console
                     console.log(response.data);
                   }
