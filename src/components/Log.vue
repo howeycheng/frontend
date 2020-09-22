@@ -25,7 +25,7 @@
         <el-drawer
             title="执行记录!"
             :visible.sync="drawer"
-            size="80%"
+            size="50%"
             :with-header="false">
             <el-table :data="runData">
                 <el-table-column
@@ -76,9 +76,9 @@ export default {
             console.log(row['run_id']);
             this.drawer = true;
             let url = this.GLOBAL.httpUrl + "runLog/set/";
-            this.$axios.get(url,{
-                params:{
-                    run_id:row['run_id']
+            this.$axios.get(url, {
+                params: {
+                    run_id: row['run_id']
                 }
             }).then(
                 response => {
@@ -93,5 +93,8 @@ export default {
 </script>
 
 <style>
-
+.el-drawer {
+    overflow: auto;
+    /* overflow-x: auto; */
+}
 </style>
