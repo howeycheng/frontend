@@ -29,7 +29,7 @@
             :with-header="false">
             <el-table :data="runData">
                 <el-table-column
-                    prop=case_name
+                    prop=case_clazz
                     label="用例名称">
                 </el-table-column>
             </el-table>
@@ -74,6 +74,7 @@ export default {
         rowDblClick(row) {
             // eslint-disable-next-line no-console
             console.log(row['run_id']);
+            this.runData = [];
             this.drawer = true;
             let url = this.GLOBAL.httpUrl + "runLog/set/";
             this.$axios.get(url, {
