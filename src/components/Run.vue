@@ -39,6 +39,7 @@
                                 <div style="padding: 10px;background: #f8f8f9">
                                         <Card title="选择执行器" icon="ios-options" :padding="0" shadow style="width: 300px;">
                                         <CellGroup>
+                                            <p>用例数量 ：{{casesNum}}</p>
                                           <Input v-model="ip" placeholder="执行器IP" />
                                           <br>
                                           <Input v-model="port" placeholder="端口" />
@@ -98,13 +99,15 @@
                 ip:'',
                 port:'',
                 topic:'',
-                casesToRun:[]
+                casesToRun:[],
+                casesNum:0
             }
         },
         methods: {
             run(){
+                this.caseLoading = true;
                 this.casesToRun = [];
-                var checkedNodes = this.$refs.reqTree.getCheckedNodes();
+                let checkedNodes = this.$refs.reqTree.getCheckedNodes();
                 if (checkedNodes.length === 0) {
                   this.$message({
                     showClose: true,
@@ -113,12 +116,10 @@
                   });
                 }
                 else {
-
-                  var checkedCases = [];
-
+                  let checkedCases = [];
                   for (let i = checkedNodes.length - 1; i >= 0; i--) {
                     let child = checkedNodes[i];
-                    checkedCases.push(child['id'])
+                    checkedCases.push(child['id'] + ' ' + child['case_id'] + ' ' + child['tier'])
                   }
                   let url = this.GLOBAL.httpUrl + "casesToRun/";
                   this.$axios.get(url, {
@@ -130,7 +131,11 @@
                   ).then(
                       response => {
                         this.casesToRun = response.data;
+                        this.caseLoading = false;
                         this.modal1 = true;
+                        this.casesNum = this.casesToRun.length;
+                          // eslint-disable-next-line no-console
+                        console.log(this.casesToRun);
                       }
                   ).catch(function (rejectedResult) {
                     // eslint-disable-next-line no-console
