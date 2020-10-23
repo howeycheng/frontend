@@ -31,7 +31,7 @@
             <el-pagination
                 @size-change="sizeChange"
                 @current-change="currentChange"
-                :page-sizes="[50, 100, 200, 300, 500]"
+                :page-sizes="[20, 50, 100, 200, 300, 500]"
                 :page-size="pageSize"
                 layout="total, sizes, prev, pager, next, jumper">
             </el-pagination>
@@ -54,17 +54,22 @@
                 :with-header="false">
                 <el-table :data="runDataOne"
                           size="mini"
-                          @row-dblclick="showCaseCompDetail">
+                          @row-dblclick="showCaseCompDetail"
+                          @expand-change="showCaseCompDetail">
                     <el-table-column type="expand">
-                        <template slot-scope="props">
-                            <el-form label-position="left" inline class="demo-table-expand">
-                                <el-form-item label="值">
-                                    <span>{{ props.row.value }}</span>
-                                </el-form-item>
-                                <el-form-item label="字段名称">
-                                    <span>{{ props.row.description }}</span>
-                                </el-form-item>
-                            </el-form>
+                        <template slot-scope="">
+                            <el-table
+                                size="mini"
+                                :data="valueDescriptionList">
+                                <el-table-column
+                                    prop=description
+                                    label="栏位">
+                                </el-table-column>
+                                <el-table-column
+                                    prop=value
+                                    label="值">
+                                </el-table-column>
+                            </el-table>
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -96,9 +101,11 @@ export default {
             runDataOne: [],
             drawerOne: false,
             loadingSet: false,
-            pageSize: 50,
+            pageSize: 20,
             currentPage: 1,
-            runDataOneDetail: []
+            runDataOneDetail: [],
+            compData: [],
+            valueDescriptionList: [],
         }
     },
     mounted: function () {
@@ -148,21 +155,21 @@ export default {
             }).then(
                 response => {
                     this.runDataOne = response.data;
-                    for (let value of this.runDataOne) {
-                        let valueList = value['value'].replace('\\[', '').replace('\\]', '').split('\0');
-                        // eslint-disable-next-line no-console
-                        console.log('valueList', valueList);
-                        let descriptionList = value['description'].replace('\\[', '').replace('\\]', '').split('\0');
-                        // eslint-disable-next-line no-console
-                        console.log('descriptionList', descriptionList);
-                    }
                 }
             )
 
 
         },
-        showCaseCompDetail() {
-
+        showCaseCompDetail(row) {
+            this.valueDescriptionList = [];
+            let valueList = row['value'].split('\0');
+            let descriptionList = row['description'].split('\0');
+            for (let i = 0; i < descriptionList.length; i++) {
+                let valueDescriptionMapOne = {"description":descriptionList[i],"value":valueList[i]};
+                this.valueDescriptionList.push(valueDescriptionMapOne)
+            }
+            // eslint-disable-next-line no-console
+            console.log(this.valueDescriptionList)
         },
         currentChange: function (currentPage) {
             this.currentPage = currentPage;
