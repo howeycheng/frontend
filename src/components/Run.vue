@@ -44,7 +44,7 @@
                                             <br>
                                             <Input v-model="port" placeholder="端口"/>
                                             <br>
-                                            <Input v-model="topic" placeholder="执行名称"/>
+                                            <Input v-model="runName" placeholder="执行名称"/>
                                             <br>
                                         </CellGroup>
                                     </Card>
@@ -98,7 +98,7 @@ export default {
             timer: '',
             ip: '',
             port: '',
-            topic: '',
+            runName: '',
             casesToRun: [],
             casesNum: 0
         }
@@ -149,13 +149,14 @@ export default {
             this.$axios.get(url, {
                     params: {
                         nameSrvAddr: this.ip + ":" + this.port,
-                        topic: this.topic,
-                        setNames: this.casesToRun.toString()
+                        runName: this.runName,
+                        setNames: this.casesToRun.toString(),
+                        setId: this.setData
                     }
                 }
             ).then(
                 response => {
-                    if (response.data.indexOf("exceptions") !== -1) {
+                    if (response.data.indexOf("exceptions") !== -1 || response.data.indexOf("error") !== -1) {
                         this.$message({
                             message: response.data,
                             type: 'warning'
