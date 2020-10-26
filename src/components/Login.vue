@@ -5,38 +5,39 @@
             <div class="text">
                 自动化测试平台
             </div>
-            <el-tabs type="border-card" class="login_tab">
-                <el-tab-pane label="登录">
-                    <div>
-                        <el-input placeholder="请输入用户名" v-model="userName" clearable
-                                  class="input_style"></el-input>
-                        <span v-if="error.userName" class="err-msg">{{ error.userName }}</span>
-                    </div>
-                    <div>
-                        <el-input placeholder="请输入密码" v-model="password" show-password
-                                  class="input_style"></el-input>
-                        <span v-if="error.password" class="err-msg">{{ error.password }}</span>
-                    </div>
-                    <div>
-                        <el-button type="primary" @click="login" class="login_style">登录</el-button>
-                    </div>
-                </el-tab-pane>
-                <el-tab-pane label="注册">
-                    <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="0px"
-                             class="ruleForm">
+            <el-tabs type="border-card" v-model="activeName" class="login_tab">
+                <el-tab-pane label="登录" name="login">
+                    <el-form :model="loginRuleForm" status-icon :rules="loginRules" ref="loginRuleForm"
+                             label-width="0px">
                         <el-form-item label="" prop="name">
-                            <el-input type="text" v-model="ruleForm.name" placeholder="请输入用户名"></el-input>
+                            <el-input type="text" v-model="loginRuleForm.name" placeholder="请输入用户名"></el-input>
                         </el-form-item>
                         <el-form-item label="" prop="pass">
-                            <el-input type="password" v-model="ruleForm.pass" autocomplete="off"
+                            <el-input type="password" v-model="loginRuleForm.pass" autocomplete="off"
+                                      placeholder="请输入密码"></el-input>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="login('loginRuleForm')" class="login_style">提交</el-button>
+                        </el-form-item>
+                    </el-form>
+                </el-tab-pane>
+                <el-tab-pane label="注册" name="register">
+                    <el-form :model="registerRuleForm" status-icon :rules="registerRules" ref="registerRuleForm"
+                             label-width="0px">
+                        <el-form-item label="" prop="name">
+                            <el-input type="text" v-model="registerRuleForm.name" placeholder="请输入用户名"></el-input>
+                        </el-form-item>
+                        <el-form-item label="" prop="pass">
+                            <el-input type="password" v-model="registerRuleForm.pass" autocomplete="off"
                                       placeholder="请输入密码"></el-input>
                         </el-form-item>
                         <el-form-item label="" prop="checkPass">
-                            <el-input type="password" v-model="ruleForm.checkPass" autocomplete="off"
+                            <el-input type="password" v-model="registerRuleForm.checkPass" autocomplete="off"
                                       placeholder="请确认密码"></el-input>
                         </el-form-item>
                         <el-form-item>
-                            <el-button type="primary" @click="register('ruleForm')" class="login_style">提交</el-button>
+                            <el-button type="primary" @click="register('registerRuleForm')" class="login_style">提交
+                            </el-button>
                         </el-form-item>
                     </el-form>
                 </el-tab-pane>
@@ -55,44 +56,66 @@ export default {
                 callback();
             }
         };
-        let validatePass = (rule, value, callback) => {
+        let validateLoginPass = (rule, value, callback) => {
             if (value === '') {
                 callback(new Error('请输入密码'));
             } else {
-                if (this.ruleForm.checkPass !== '') {
-                    this.$refs.ruleForm.validateField('checkPass');
+                if (this.loginRuleForm.checkPass !== '') {
+                    this.$refs.loginRuleForm.validateField('checkPass');
                 }
                 callback();
             }
         };
-        let validatePass2 = (rule, value, callback) => {
+        let validatePass = (rule, value, callback) => {
+            if (value === '') {
+                callback(new Error('请输入密码'));
+            } else {
+                if (this.registerRuleForm.checkPass !== '') {
+                    this.$refs.registerRuleForm.validateField('checkPass');
+                }
+                callback();
+            }
+        };
+        let validatePassConfirm = (rule, value, callback) => {
             if (value === '') {
                 callback(new Error('请再次输入密码'));
-            } else if (value !== this.ruleForm.pass) {
+            } else if (value !== this.registerRuleForm.pass) {
                 callback(new Error('两次输入密码不一致!'));
             } else {
                 callback();
             }
         };
         return {
+            activeName: 'login',
             userName: '',
             password: '',
-            isBtnLoading: false,
-            error: {
+            // 登录表单
+            loginRuleForm: {
                 userName: '',
                 password: ''
             },
-            ruleForm: {
+            // 注册表单
+            registerRuleForm: {
                 pass: '',
                 checkPass: '',
                 name: ''
             },
-            rules: {
+            // 登录表单验证规则
+            loginRules: {
+                pass: [
+                    {validator: validateLoginPass, trigger: 'blur'}
+                ],
+                name: [
+                    {validator: checkName, trigger: 'blur'}
+                ]
+            },
+            // 注册表单验证规则
+            registerRules: {
                 pass: [
                     {validator: validatePass, trigger: 'blur'}
                 ],
                 checkPass: [
-                    {validator: validatePass2, trigger: 'blur'}
+                    {validator: validatePassConfirm, trigger: 'blur'}
                 ],
                 name: [
                     {validator: checkName, trigger: 'blur'}
@@ -101,29 +124,59 @@ export default {
         };
     },
     methods: {
-        login() {
-            this.$router.push({path: '/home'})
-        },
+        // login() {
+        //     this.$router.push({path: '/home'})
+        // },
         register(formName) {
             // eslint-disable-next-line no-console
             this.$refs[formName].validate((valid) => {
                 if (valid) {
-                    // eslint-disable-next-line no-console
-                    console.log(this.ruleForm.name);
-                    // eslint-disable-next-line no-console
-                    console.log(this.ruleForm.pass);
                     let url = this.GLOBAL.httpUrl + "register/";
                     let data = new FormData();
-                    data.append('name',this.ruleForm.name);
-                    data.append('password',this.ruleForm.pass);
-                    this.$axios.post(url,data
+                    data.append('name', this.registerRuleForm.name);
+                    data.append('password', this.registerRuleForm.pass);
+                    this.$axios.post(url, data
                     ).then(
                         response => {
                             // eslint-disable-next-line no-console
                             console.log(response.data);
+                            if (response.data === '用户名已存在') {
+                                this.$message('用户名已存在');
+                            } else {
+                                this.$message('注册成功');
+                                this.activeName = "login";
+                            }
                         }
                     )
-                    alert('submit!');
+                } else {
+                    // eslint-disable-next-line no-console
+                    console.log('error submit!!');
+                    return false;
+                }
+            });
+        },
+        login(formName) {
+            this.$refs[formName].validate((valid) => {
+                if (valid) {
+                    let url = this.GLOBAL.httpUrl + "login/";
+                    let data = new FormData();
+                    data.append('name', this.loginRuleForm.name);
+                    data.append('password', this.loginRuleForm.pass);
+                    this.$axios.post(url, data
+                    ).then(
+                        response => {
+                            // eslint-disable-next-line no-console
+                            console.log(response.data);
+                            if (response.data === '登录成功') {
+                                this.$message('登录成功');
+                                this.$router.push({path: '/home'})
+                            } else if (response.data === '用户名不存在'){
+                                this.$message('用户不存在');
+                            }else {
+                                this.$message('验证失败');
+                            }
+                        }
+                    )
                 } else {
                     // eslint-disable-next-line no-console
                     console.log('error submit!!');
@@ -143,11 +196,14 @@ export default {
     position: fixed;
     width: 100%;
     align-content: center;
+    line-height: 100%;
 }
 
 .login_form {
+    position: absolute;
+    top: 30%;
     text-align: center;
-    margin-top: 500px;
+    /*margin-top: 500px;*/
     width: 100%;
     height: 280px;
 }
@@ -157,11 +213,6 @@ export default {
     margin-top: 10px;
     font-size: 14px;
     color: #E9EEF3;
-    margin-bottom: 10px;
-}
-
-.input_style {
-    width: 180px;
     margin-bottom: 10px;
 }
 

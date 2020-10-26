@@ -8,13 +8,14 @@ import 'iview/dist/styles/iview.css';
 import axios from 'axios'
 import global from "./components/global";
 
-
 Vue.config.productionTip = false;
 Vue.use(ElementUI);
 Vue.use(iView);
 Vue.prototype.$axios = axios;
-Vue.prototype.GLOBAL = global;
 
+axios.defaults.withCredentials = true
+Vue.prototype.GLOBAL = global;
+Vue.prototype.$axios.defaults.withCredentials = true
 new Vue({
     render: h => h(App),
     router
