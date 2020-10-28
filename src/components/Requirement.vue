@@ -102,10 +102,10 @@ export default {
                 // 发送请求:将数据返回到一个回到函数中
                 // 并且响应成功以后会执行then方法中的回调函数
                 this.$axios.get(url, {
-                    headers: {
-                        "Content-Type": "application/json;charset=utf-8"
-                    },
-                    withCredentials: true
+                    // headers: {
+                    //     "Content-Type": "application/json;charset=utf-8"
+                    // },
+                    // withCredentials: true
                 }).then(
                     response => {
                         return resolve(response.data)

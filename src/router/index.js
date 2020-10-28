@@ -9,6 +9,7 @@ import requirement from '../components/Requirement'
 import run from '../components/Run'
 import log from '../components/Log'
 import job from "../components/job";
+import manage from "@/components/manage";
 
 // 解决Uncaught (in promise) NavigationDuplicated {_name: “NavigationDuplicated”, name: "NavigationDuplic}的报错问题
 const originalPush = Router.prototype.push
@@ -55,6 +56,11 @@ export default new Router({
             path: '/job',
             name: 'job',
             component: job
+        },
+        {
+            path: '/manage',
+            name: 'manage',
+            component: manage
         }
     ],
 })

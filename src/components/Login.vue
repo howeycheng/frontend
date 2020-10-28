@@ -169,7 +169,7 @@ export default {
                             console.log(response.data);
                             if (response.data === '登录成功') {
                                 this.$message('登录成功');
-                                this.$router.push({path: '/home'})
+                                this.$router.push({path: '/manage'})
                             } else if (response.data === '用户名不存在'){
                                 this.$message('用户不存在');
                             }else {

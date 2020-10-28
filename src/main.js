@@ -12,7 +12,6 @@ Vue.config.productionTip = false;
 Vue.use(ElementUI);
 Vue.use(iView);
 Vue.prototype.$axios = axios;
-
 axios.defaults.withCredentials = true
 Vue.prototype.GLOBAL = global;
 Vue.prototype.$axios.defaults.withCredentials = true
