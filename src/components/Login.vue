@@ -133,7 +133,7 @@ export default {
                 if (valid) {
                     let url = this.GLOBAL.httpUrl + "register/";
                     let data = new FormData();
-                    data.append('name', this.registerRuleForm.name);
+                    data.append('username', this.registerRuleForm.name);
                     data.append('password', this.registerRuleForm.pass);
                     this.$axios.post(url, data
                     ).then(
@@ -160,7 +160,7 @@ export default {
                 if (valid) {
                     let url = this.GLOBAL.httpUrl + "login/";
                     let data = new FormData();
-                    data.append('name', this.loginRuleForm.name);
+                    data.append('username', this.loginRuleForm.name);
                     data.append('password', this.loginRuleForm.pass);
                     this.$axios.post(url, data
                     ).then(
