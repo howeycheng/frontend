@@ -8,6 +8,7 @@
                 border
                 style="align-content: center;width:auto;font-size: 0.6vw;margin:0;line-height: 0.6vw"
                 highlight-current-row
+                :row-class-name="tableRowClassName"
                 @row-dblclick="rowDblClick">
                 <el-table-column
                     prop=run_name
@@ -40,6 +41,7 @@
                 v-loading="loadingSet"
                 element-loading-text="加载用例中"
                 :data="runData.slice((currentPage-1)*pageSize,currentPage*pageSize)"
+                :row-class-name="tableRowClassName"
                 @row-dblclick="showCaseComp">
                 <el-table-column
                     prop=case_clazz
@@ -55,6 +57,7 @@
                 <el-table :data="runDataOne"
                           size="mini"
                           @row-dblclick="showCaseCompDetail"
+                          :row-class-name="tableRowClassName"
                           @expand-change="showCaseCompDetail">
                     <el-table-column type="expand">
                         <template slot-scope="">
@@ -165,7 +168,7 @@ export default {
             let valueList = row['value'].split('\0');
             let descriptionList = row['description'].split('\0');
             for (let i = 0; i < descriptionList.length; i++) {
-                let valueDescriptionMapOne = {"description":descriptionList[i],"value":valueList[i]};
+                let valueDescriptionMapOne = {"description":descriptionList[i],"value":valueList[i],"runner_result":row['runner_result']};
                 this.valueDescriptionList.push(valueDescriptionMapOne)
             }
             // eslint-disable-next-line no-console
@@ -176,12 +179,26 @@ export default {
         },
         sizeChange(val) {
             this.pageSize = val
+        },
+        tableRowClassName({row}) {
+            if (row['runner_result'] === 1) {
+                return 'warning-row';
+            }
+            return '';
         }
     }
 }
 </script>
 
 <style>
+.el-table .warning-row {
+    /*background: rgba(178,58,55,0.64);*/
+    color: red;
+}
+
+.el-table .success-row {
+    background: #f0f9eb;
+}
 .el-drawer {
     overflow: auto;
     /* overflow-x: auto; */
