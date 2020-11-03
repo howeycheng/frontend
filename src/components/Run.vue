@@ -40,10 +40,10 @@
                                     <Card title="选择执行器" icon="ios-options" :padding="0" shadow style="width: 300px;">
                                         <CellGroup>
                                             <p>用例数量 ：{{ casesNum }}</p>
-                                            <Input v-model="ip" placeholder="执行器IP"/>
-                                            <br>
-                                            <Input v-model="port" placeholder="端口"/>
-                                            <br>
+<!--                                            <Input v-model="ip" placeholder="执行器IP"/>-->
+<!--                                            <br>-->
+<!--                                            <Input v-model="port" placeholder="端口"/>-->
+<!--                                            <br>-->
                                             <Input v-model="runName" placeholder="执行名称"/>
                                             <br>
                                         </CellGroup>
@@ -96,8 +96,8 @@ export default {
                 isLeaf: 'leaf'
             },
             timer: '',
-            ip: '',
-            port: '',
+            // ip: '',
+            // port: '',
             runName: '',
             casesToRun: [],
             casesNum: 0
@@ -148,7 +148,7 @@ export default {
             let url = this.GLOBAL.httpUrl + "run/";
             this.$axios.get(url, {
                     params: {
-                        nameSrvAddr: this.ip + ":" + this.port,
+                        // nameSrvAddr: this.ip + ":" + this.port,
                         runName: this.runName,
                         setNames: this.casesToRun.toString(),
                         setId: this.setData
