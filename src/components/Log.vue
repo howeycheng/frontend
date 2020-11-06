@@ -2,25 +2,44 @@
     <div>
         <headers activeIndex='/log'></headers>
         <div>
+            <el-input
+                v-model="search"
+                size="mini"
+                placeholder="输入关键字搜索"/>
             <el-table
                 size="mini"
-                :data="run"
+                :data="run.filter(data => !search || data.run_name.includes(search))"
                 border
                 style="align-content: center;width:auto;font-size: 0.6vw;margin:0;line-height: 0.6vw"
+                :cell-style="cellStyle"
                 highlight-current-row
+                :default-sort="{prop: 'start', order: 'descending'}"
                 :row-class-name="tableRowClassName"
                 @row-dblclick="rowDblClick">
                 <el-table-column
                     prop=run_name
+                    sortable
                     label="执行名称">
                 </el-table-column>
                 <el-table-column
                     prop=start
+                    sortable
                     label="开始时间">
                 </el-table-column>
                 <el-table-column
                     prop=finish
+                    sortable
                     label="结束时间">
+                </el-table-column>
+                <el-table-column
+                    align="right">
+                    <template slot-scope="scope">
+                        <el-button
+                            size="mini"
+                            type="danger"
+                            @click="runDelete(scope.$index, scope.row)">删除
+                        </el-button>
+                    </template>
                 </el-table-column>
             </el-table>
         </div>
@@ -38,9 +57,11 @@
             </el-pagination>
             <el-table
                 size="mini"
+                :cell-style="cellStyle"
                 v-loading="loadingSet"
                 element-loading-text="加载用例中"
                 :data="runData.slice((currentPage-1)*pageSize,currentPage*pageSize)"
+                :default-sort="{prop: 'case_clazz'}"
                 :row-class-name="tableRowClassName"
                 @row-dblclick="showCaseComp">
                 <el-table-column
@@ -56,6 +77,7 @@
                 :with-header="false">
                 <el-table :data="runDataOne"
                           size="mini"
+                          :cell-style="cellStyle"
                           @row-dblclick="showCaseCompDetail"
                           :row-class-name="tableRowClassName"
                           @expand-change="showCaseCompDetail">
@@ -109,6 +131,7 @@ export default {
             runDataOneDetail: [],
             compData: [],
             valueDescriptionList: [],
+            search: "",
         }
     },
     mounted: function () {
@@ -168,7 +191,11 @@ export default {
             let valueList = row['value'].split('\0');
             let descriptionList = row['description'].split('\0');
             for (let i = 0; i < descriptionList.length; i++) {
-                let valueDescriptionMapOne = {"description":descriptionList[i],"value":valueList[i],"runner_result":row['runner_result']};
+                let valueDescriptionMapOne = {
+                    "description": descriptionList[i],
+                    "value": valueList[i],
+                    "runner_result": row['runner_result']
+                };
                 this.valueDescriptionList.push(valueDescriptionMapOne)
             }
             // eslint-disable-next-line no-console
@@ -185,6 +212,36 @@ export default {
                 return 'warning-row';
             }
             return '';
+        },
+        runDelete(index, row) {
+            // eslint-disable-next-line no-console
+            console.log(index, row);
+            this.$confirm('此操作将永久删除该执行记录, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                let param = {id: row['run_id']}
+                this.$axios.delete(this.GLOBAL.httpUrl + "run/id", {data: param}).then(response => {
+                    // eslint-disable-next-line no-console
+                    console.log(response.data['status'])
+                    if (response.data['status'] === '204') {
+                        this.$message({
+                            type: 'success',
+                            message: '删除成功!'
+                        });
+                        this.getRun();
+                    }
+                })
+            }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: '已取消删除'
+                });
+            });
+        },
+        cellStyle(){
+            return "font-weight:700"
         }
     }
 }
@@ -199,6 +256,7 @@ export default {
 .el-table .success-row {
     background: #f0f9eb;
 }
+
 .el-drawer {
     overflow: auto;
     /* overflow-x: auto; */
