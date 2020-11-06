@@ -53,6 +53,7 @@
                 @current-change="currentChange"
                 :page-sizes="[20, 50, 100, 200, 300, 500]"
                 :page-size="pageSize"
+                :total="setNums"
                 layout="total, sizes, prev, pager, next, jumper">
             </el-pagination>
             <el-table
@@ -132,6 +133,7 @@ export default {
             compData: [],
             valueDescriptionList: [],
             search: "",
+            setNums: 0
         }
     },
     mounted: function () {
@@ -167,6 +169,7 @@ export default {
                     console.log(response.data);
                     this.runData = response.data;
                     this.loadingSet = false;
+                    this.setNums = this.runData.length;
                 }
             )
         },
@@ -181,10 +184,9 @@ export default {
             }).then(
                 response => {
                     this.runDataOne = response.data;
+
                 }
             )
-
-
         },
         showCaseCompDetail(row) {
             this.valueDescriptionList = [];
@@ -240,9 +242,9 @@ export default {
                 });
             });
         },
-        cellStyle(){
+        cellStyle() {
             return "font-weight:700"
-        }
+        },
     }
 }
 </script>
