@@ -32,6 +32,16 @@
                     label="结束时间">
                 </el-table-column>
                 <el-table-column
+                    prop=finish_nums
+                    sortable
+                    label="已执行条数">
+                </el-table-column>
+                <el-table-column
+                    prop=nums
+                    sortable
+                    label="总用例条数">
+                </el-table-column>
+                <el-table-column
                     align="right">
                     <template slot-scope="scope">
                         <el-button
