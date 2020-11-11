@@ -206,6 +206,9 @@ export default {
             )
         },
         rowDblClick(row) {
+            this.valueDescriptionList = [];
+            this.checkValueDescriptionList = [];
+            this.resultValueDescriptionList = [];
             this.drawer = true;
             // eslint-disable-next-line no-console
             console.log(row['run_id']);
@@ -227,6 +230,9 @@ export default {
             )
         },
         showCaseComp(row) {
+            this.valueDescriptionList = [];
+            this.checkValueDescriptionList = [];
+            this.resultValueDescriptionList = [];
             this.drawerOne = true;
             let url = this.GLOBAL.httpUrl + "runLog/set/one";
             this.$axios.get(url, {
