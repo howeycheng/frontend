@@ -49,6 +49,7 @@
             size="80%"
             :with-header="false">
             <el-pagination
+                id="pagination"
                 @size-change="sizeChange"
                 @current-change="currentChange"
                 :page-sizes="[20, 50, 100, 200, 300, 500]"
@@ -57,10 +58,12 @@
                 layout="total, sizes, prev, pager, next, jumper">
             </el-pagination>
             <el-table
+                id="casesTable"
                 size="mini"
                 :cell-style="cellStyle"
                 v-loading="loadingSet"
                 element-loading-text="加载用例中"
+                highlight-current-row
                 :data="runData.slice((currentPage-1)*pageSize,currentPage*pageSize)"
                 :default-sort="{prop: 'case_clazz'}"
                 :row-class-name="tableRowClassName"
@@ -77,32 +80,79 @@
                 :append-to-body="true"
                 :with-header="false">
                 <el-table :data="runDataOne"
+                          id="compTable"
                           size="mini"
+                          highlight-current-row
                           :cell-style="cellStyle"
                           @row-dblclick="showCaseCompDetail"
-                          :row-class-name="tableRowClassName"
-                          @expand-change="showCaseCompDetail">
-                    <el-table-column type="expand">
-                        <template slot-scope="">
-                            <el-table
-                                size="mini"
-                                :data="valueDescriptionList">
-                                <el-table-column
-                                    prop=description
-                                    label="栏位">
-                                </el-table-column>
-                                <el-table-column
-                                    prop=value
-                                    label="值">
-                                </el-table-column>
-                            </el-table>
-                        </template>
-                    </el-table-column>
+                          :row-class-name="tableRowClassName">
+                    <!--                          @expand-change="showCaseCompDetail"-->
+                    <!--                >-->
+                    <!--                    <el-table-column type="expand">-->
+                    <!--                        <template slot-scope="">-->
+                    <!--                            <el-table-->
+                    <!--                                size="mini"-->
+                    <!--                                :data="valueDescriptionList">-->
+                    <!--                                <el-table-column-->
+                    <!--                                    prop=description-->
+                    <!--                                    label="栏位">-->
+                    <!--                                </el-table-column>-->
+                    <!--                                <el-table-column-->
+                    <!--                                    prop=value-->
+                    <!--                                    label="值">-->
+                    <!--                                </el-table-column>-->
+                    <!--                            </el-table>-->
+                    <!--                        </template>-->
+                    <!--                    </el-table-column>-->
                     <el-table-column
                         prop=component_name
                         label="组件名称">
                     </el-table-column>
                 </el-table>
+                <el-tabs v-model="activeName" type="card" @tab-click="tabClick" id="outPutTabs">
+                    <el-tab-pane label="执行结果" name="first">
+                        <el-table
+                            size="mini"
+                            :data="resultValueDescriptionList">
+                            <el-table-column
+                                prop=description
+                                label="栏位">
+                            </el-table-column>
+                            <el-table-column
+                                prop=value
+                                label="值">
+                            </el-table-column>
+                        </el-table>
+                    </el-tab-pane>
+                    <el-tab-pane label="校验点" name="second">
+                        <el-table
+                            size="mini"
+                            :data="checkValueDescriptionList">
+                            <el-table-column
+                                prop=description
+                                label="栏位">
+                            </el-table-column>
+                            <el-table-column
+                                prop=value
+                                label="值">
+                            </el-table-column>
+                        </el-table>
+                    </el-tab-pane>
+                    <el-tab-pane label="全部出参" name="third">
+                        <el-table
+                            size="mini"
+                            :data="valueDescriptionList">
+                            <el-table-column
+                                prop=description
+                                label="栏位">
+                            </el-table-column>
+                            <el-table-column
+                                prop=value
+                                label="值">
+                            </el-table-column>
+                        </el-table>
+                    </el-tab-pane>
+                </el-tabs>
             </el-drawer>
         </el-drawer>
     </div>
@@ -132,8 +182,11 @@ export default {
             runDataOneDetail: [],
             compData: [],
             valueDescriptionList: [],
+            resultValueDescriptionList: [],
+            checkValueDescriptionList: [],
             search: "",
-            setNums: 0
+            setNums: 0,
+            activeName: 'first'
         }
     },
     mounted: function () {
@@ -190,6 +243,8 @@ export default {
         },
         showCaseCompDetail(row) {
             this.valueDescriptionList = [];
+            this.checkValueDescriptionList = [];
+            this.resultValueDescriptionList = [];
             let valueList = row['value'].split('\0');
             let descriptionList = row['description'].split('\0');
             for (let i = 0; i < descriptionList.length; i++) {
@@ -199,6 +254,12 @@ export default {
                     "runner_result": row['runner_result']
                 };
                 this.valueDescriptionList.push(valueDescriptionMapOne)
+                if (valueDescriptionMapOne['description'].indexOf("result") !== -1) {
+                    this.resultValueDescriptionList.push(valueDescriptionMapOne);
+                }
+                if (valueDescriptionMapOne['description'].indexOf("check") !== -1) {
+                    this.checkValueDescriptionList.push(valueDescriptionMapOne);
+                }
             }
             // eslint-disable-next-line no-console
             console.log(this.valueDescriptionList)
@@ -245,6 +306,12 @@ export default {
         cellStyle() {
             return "font-weight:700"
         },
+        tabClick() {
+
+        },
+        headerRowStyle() {
+
+        }
     }
 }
 </script>
@@ -272,4 +339,24 @@ export default {
 
 }
 
+.el-table--striped .el-table__body tr.el-table__row--striped.current-row td, .el-table__body tr.current-row > td {
+    color: #fff;
+    background-color: rgba(34, 73, 145, 0.51) !important;
+}
+
+#outPutTabs {
+    margin: 10px;
+}
+
+#compTable {
+    margin: 10px;
+}
+
+#casesTable {
+    margin: 10px;
+}
+
+#pagination {
+    margin: 10px;
+}
 </style>
