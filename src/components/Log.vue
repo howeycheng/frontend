@@ -356,7 +356,7 @@ export default {
 }
 
 .el-table--striped .el-table__body tr.el-table__row--striped.current-row td, .el-table__body tr.current-row > td {
-    color: #fff;
+    /*color: #fff;*/
     background-color: rgba(34, 73, 145, 0.51) !important;
 }
 
