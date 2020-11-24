@@ -20,11 +20,15 @@ Vue.prototype.GLOBAL = global;
 Vue.prototype.$axios.defaults.withCredentials = true
 Vue.prototype.$Cookies = Cookies;
 // http request 拦截器
+const url =  'http://127.0.0.1:8090/apis/';
 axios.interceptors.request.use(
     config => {
         let cookies = Cookies.get('csrftoken');
         if (cookies) {
             config.headers['X-CSRFToken'] = cookies;
+        }
+        if (config.url.indexOf(url) === -1) {
+            config.url = url + config.url;/*拼接完整请求路径*/
         }
         return config;
     }

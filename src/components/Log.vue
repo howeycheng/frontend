@@ -204,7 +204,7 @@ export default {
     },
     methods: {
         getRun() {
-            let url = this.GLOBAL.httpUrl + "runLog/";
+            let url = "unit/runLog/";
             this.$axios.get(url, {
                 params: {}
             }).then(
@@ -224,7 +224,7 @@ export default {
             console.log(row['run_id']);
             this.runData = [];
             this.loadingSet = true;
-            let url = this.GLOBAL.httpUrl + "runLog/set/";
+            let url = "unit/runLog/set/";
             this.$axios.get(url, {
                 params: {
                     run_id: row['run_id']
@@ -244,7 +244,7 @@ export default {
             this.checkValueDescriptionList = [];
             this.resultValueDescriptionList = [];
             this.drawerOne = true;
-            let url = this.GLOBAL.httpUrl + "runLog/set/one";
+            let url = "unit/runLog/set/one";
             this.$axios.get(url, {
                 params: {
                     run_id: row['run_id'],
@@ -301,7 +301,7 @@ export default {
                 type: 'warning'
             }).then(() => {
                 let param = {id: row['run_id']}
-                this.$axios.delete(this.GLOBAL.httpUrl + "run/id", {data: param}).then(response => {
+                this.$axios.delete("unit/run/id", {data: param}).then(response => {
                     // eslint-disable-next-line no-console
                     console.log(response.data['status'])
                     if (response.data['status'] === '204') {

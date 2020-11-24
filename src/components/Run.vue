@@ -121,7 +121,7 @@ export default {
                     let child = checkedNodes[i];
                     checkedCases.push(child['id'] + ' ' + child['case_id'] + ' ' + child['tier'])
                 }
-                let url = this.GLOBAL.httpUrl + "casesToRun/";
+                let url = "unit/casesToRun/";
                 this.$axios.get(url, {
                         params: {
                             checkedCases: checkedCases + '',
@@ -145,7 +145,7 @@ export default {
         },
         // 确认开始执行
         ok() {
-            let url = this.GLOBAL.httpUrl + "run/";
+            let url = "unit/run/";
             let data = new FormData();
             data.append("setNames", this.casesToRun.toString());
             data.append("runName", this.runName);
@@ -180,7 +180,7 @@ export default {
         },
         loadSetNode(node, resolve) {
             // 左边栏需求默认加载方法
-            let url = this.GLOBAL.httpUrl + "set/";
+            let url = "unit/set/";
             if (node.level === 0) {
                 // 发送请求:将数据返回到一个回调函数中
                 this.$axios.get(url, {
@@ -225,7 +225,7 @@ export default {
         loadReqNode(node, resolve) {
             // 懒加载先保存当前选中的节点key, 展开后再设置一遍解决展开某选中节点后选中被取消的问题
             if (this.$refs.reqTree !== undefined) this.checkedKeys = this.$refs.reqTree.getCheckedKeys();
-            let url = this.GLOBAL.httpUrl + "reqOfCase/";
+            let url = "unit/reqOfCase/";
             if (node.level === 0) {
                 // 发送请求:将数据返回到一个回调函数中
                 // 并且响应成功以后会执行then方法中的回调函数

@@ -3,11 +3,14 @@
         <div class="title">
             <img class="title-img" src="../assets/title.png" alt="">
             <span class="title-text">自动化测试平台</span>
-            <el-dropdown style="float: right" @command="logout">
+            <el-dropdown style="float: right">
                 <Icon type="ios-contact-outline" size="35" color="white" style=""/>
                 <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item>
+                    <el-dropdown-item @click.native="logout">
                         注销
+                    </el-dropdown-item>
+                    <el-dropdown-item @click.native="switchProject">
+                        切换项目
                     </el-dropdown-item>
                 </el-dropdown-menu>
             </el-dropdown>
@@ -40,19 +43,21 @@ export default {
         return {};
     },
     methods:{
-        logout(){
-            let url = this.GLOBAL.httpUrl + "loginOut/";
-            this.$axios.post(url, {
-            }).then(
+        logout() {
+            let url = "manager/user/loginout";
+            this.$axios.post(url, {}).then(
                 response => {
                     // eslint-disable-next-line no-console
                     console.log(response.data);
-                    if (response.data['status'] === '0'){
+                    if (response.data['status'] === '200') {
                         this.$message('已退出登录');
                         this.$router.push({path: '/'});
                     }
                 }
             )
+        },
+        switchProject(){
+            this.$router.push({path: '/manage'});
         }
     }
 }

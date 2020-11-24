@@ -131,7 +131,7 @@ export default {
             // eslint-disable-next-line no-console
             this.$refs[formName].validate((valid) => {
                 if (valid) {
-                    let url = this.GLOBAL.httpUrl + "register/";
+                    let url = "manager/user/create";
                     let data = new FormData();
                     data.append('username', this.registerRuleForm.name);
                     data.append('password', this.registerRuleForm.pass);
@@ -140,7 +140,7 @@ export default {
                         response => {
                             // eslint-disable-next-line no-console
                             console.log(response.data);
-                            if (response.data === '用户名已存在') {
+                            if (response.data['status']  === '400') {
                                 this.$message('用户名已存在');
                             } else {
                                 this.$message('注册成功');
@@ -158,7 +158,7 @@ export default {
         login(formName) {
             this.$refs[formName].validate((valid) => {
                 if (valid) {
-                    let url = this.GLOBAL.httpUrl + "login/";
+                    let url = "manager/user/login";
                     let data = new FormData();
                     data.append('username', this.loginRuleForm.name);
                     data.append('password', this.loginRuleForm.pass);
@@ -167,13 +167,13 @@ export default {
                         response => {
                             // eslint-disable-next-line no-console
                             console.log(response.data);
-                            if (response.data === '登录成功') {
+                            if (response.data['status'] === '200') {
                                 this.$message('登录成功');
                                 this.$router.push({path: '/manage'})
-                            } else if (response.data === '用户名不存在'){
+                            } else if (response.data['error'] === '用户不存在'){
                                 this.$message('用户不存在');
                             }else {
-                                this.$message('验证失败');
+                                this.$message('验证错误');
                             }
                         }
                     )

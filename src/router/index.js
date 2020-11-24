@@ -22,11 +22,11 @@ Vue.use(Router);
 export default new Router({
     mode: 'hash',
     routes: [
-        {
-            path: '/',
-            name: 'Home',
-            component: Home,
-        },
+        // {
+        //     path: '/',
+        //     name: 'Home',
+        //     component: Home,
+        // },
         {
             path: '/home',
             name: 'Home',
@@ -61,6 +61,11 @@ export default new Router({
             path: '/manage',
             name: 'manage',
             component: manage
+        },
+        {
+            path: '/',
+            name: 'Login',
+            component: Login
         }
     ],
 })

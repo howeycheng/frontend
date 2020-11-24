@@ -165,7 +165,7 @@
                 }
             },
             getScenesSet(id) {
-                this.$axios.get(this.GLOBAL.httpUrl + "sceneDetail/", {
+                this.$axios.get("unit/sceneDetail/", {
                     params: {
                         rqid: id
                     }
@@ -176,7 +176,7 @@
                 )
             },
             getScenesCases(id) {
-                this.$axios.get(this.GLOBAL.httpUrl + "cases/", {
+                this.$axios.get("unit/cases/", {
                     params: {
                         rqid: id
                     }
@@ -189,7 +189,7 @@
             },
             getSceneParams(rqid) {
                 //获取场景组件栏位
-                this.$axios.get(this.GLOBAL.httpUrl + "sceneParams/", {
+                this.$axios.get("unit/sceneParams/", {
                     params: {
                         rqid: rqid
                     }
@@ -215,7 +215,7 @@
             getSceneCasesIo(rqid, currentPage, pageSize) {
                 this.pictLoading = true;
                 //:data="scenesCases.slice((currentPage-1)*pageSize,currentPage*pageSize)"
-                this.$axios.get(this.GLOBAL.httpUrl + "sceneCasesIo/", {
+                this.$axios.get("unit/sceneCasesIo/", {
                     params: {
                         rqid: rqid,
                         currentPage: currentPage,
@@ -229,7 +229,7 @@
                 )
             },
             getSetIo(rqid, type) {
-                this.$axios.get(this.GLOBAL.httpUrl + "sceneSetIo/", {
+                this.$axios.get("unit/sceneSetIo/", {
                     params: {
                         rqid: rqid,
                         type: type
