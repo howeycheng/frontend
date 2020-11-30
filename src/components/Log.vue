@@ -233,7 +233,9 @@ export default {
                 response => {
                     // eslint-disable-next-line no-console
                     console.log(response.data);
-                    this.runData = response.data;
+                    if (Object.keys(response.data).length !== 0) {
+                        this.runData = response.data;
+                    }
                     this.loadingSet = false;
                     this.setNums = this.runData.length;
                 }
@@ -252,8 +254,9 @@ export default {
                 }
             }).then(
                 response => {
-                    this.runDataOne = response.data;
-
+                    if (Object.keys(response.data).length !== 0) {
+                        this.runDataOne = response.data;
+                    }
                 }
             )
         },
