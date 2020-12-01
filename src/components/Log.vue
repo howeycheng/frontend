@@ -46,12 +46,37 @@
                     <template slot-scope="scope">
                         <el-button
                             size="mini"
+                            type=""
+                            @click="runAgain(scope.$index, scope.row)">失败用例重跑
+                        </el-button>
+                        <el-button
+                            size="mini"
                             type="danger"
                             @click="runDelete(scope.$index, scope.row)">删除
                         </el-button>
                     </template>
                 </el-table-column>
             </el-table>
+            <Modal
+                v-model="modal1"
+                title="失败用例重跑"
+                @on-ok="ok"
+                @on-cancel="cancel"
+                :draggable="true">
+                <div style="padding: 10px;background: #f8f8f9">
+                    <Card title="选择执行器" icon="ios-options" :padding="0" shadow style="width: 300px;">
+                        <CellGroup>
+                            <p>用例数量 ：{{ casesNum }}</p>
+                            <!--                                            <Input v-model="ip" placeholder="执行器IP"/>-->
+                            <!--                                            <br>-->
+                            <!--                                            <Input v-model="port" placeholder="端口"/>-->
+                            <!--                                            <br>-->
+                            <Input v-model="runName" placeholder="执行名称"/>
+                            <br>
+                        </CellGroup>
+                    </Card>
+                </div>
+            </Modal>
         </div>
         <el-drawer
             title="执行记录!"
@@ -96,24 +121,6 @@
                           :cell-style="cellStyle"
                           @row-dblclick="showCaseCompDetail"
                           :row-class-name="tableRowClassName">
-                    <!--                          @expand-change="showCaseCompDetail"-->
-                    <!--                >-->
-                    <!--                    <el-table-column type="expand">-->
-                    <!--                        <template slot-scope="">-->
-                    <!--                            <el-table-->
-                    <!--                                size="mini"-->
-                    <!--                                :data="valueDescriptionList">-->
-                    <!--                                <el-table-column-->
-                    <!--                                    prop=description-->
-                    <!--                                    label="栏位">-->
-                    <!--                                </el-table-column>-->
-                    <!--                                <el-table-column-->
-                    <!--                                    prop=value-->
-                    <!--                                    label="值">-->
-                    <!--                                </el-table-column>-->
-                    <!--                            </el-table>-->
-                    <!--                        </template>-->
-                    <!--                    </el-table-column>-->
                     <el-table-column
                         prop=component_name
                         label="组件名称">
@@ -196,7 +203,12 @@ export default {
             checkValueDescriptionList: [],
             search: "",
             setNums: 0,
-            activeName: 'first'
+            activeName: 'first',
+            modal1: false,
+            casesNum: 0,
+            casesToRun: [],
+            runName: "",
+            setData: ""
         }
     },
     mounted: function () {
@@ -330,7 +342,53 @@ export default {
         },
         headerRowStyle() {
 
-        }
+        },
+        runAgain(index, row) {
+            // eslint-disable-next-line no-console
+            console.log(index, row);
+            // eslint-disable-next-line no-console
+            console.log(row['set_id']);
+            this.setData = row['set_id'];
+            this.$axios.get("unit/runLog/set/error", {
+                params: {
+                    run_id: row['run_id']
+                }
+            }).then(response => {
+                // eslint-disable-next-line no-console
+                console.log(response.data)
+                this.casesNum = response.data.length;
+                if (this.casesNum !== 0) {
+                    this.casesToRun = response.data;
+                    this.modal1 = true;
+                }
+            })
+        },
+        ok() {
+            let url = "unit/run/";
+            let data = new FormData();
+            data.append("setNames", this.casesToRun.toString());
+            data.append("runName", this.runName);
+            data.append("setId", this.setData);
+            this.$axios.post(url, data
+            ).then(
+                response => {
+                    if (response.data.indexOf("exceptions") !== -1 || response.data.indexOf("error") !== -1) {
+                        this.$message({
+                            message: response.data,
+                            type: 'warning'
+                        });
+                    }
+                    // eslint-disable-next-line no-console
+                    console.log(response.data);
+                }
+            ).catch(function (rejectedResult) {
+                // eslint-disable-next-line no-console
+                console.log(rejectedResult);
+            })
+        },
+        cancel() {
+            this.$Message.info('Clicked cancel');
+        },
     }
 }
 </script>
