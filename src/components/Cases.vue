@@ -1,6 +1,5 @@
 <template>
     <div>
-        <headers activeIndex='/requirement'></headers>
         <div id="detail">
             <el-tabs id="tabs" v-model="activeName" @tab-click="handleClick">
                 <el-tab-pane label="组件配置" name="first">
@@ -126,14 +125,12 @@
 </template>
 
 <script>
-    import headers from './header'
     import FileSaver from 'file-saver'
     import XLSX from 'xlsx'
 
     export default {
         name: "Cases",
         components: {
-            headers
         },
         data() {
             return {

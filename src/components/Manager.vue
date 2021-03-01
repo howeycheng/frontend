@@ -27,7 +27,7 @@
                     }}
                 </el-button>
                 <el-button style="float: right; padding: 3px 0;margin-right: 20px ;color: #ff0000" type="text"
-                           @click.native="deleteProject(project.project_id)">删除
+                           @click.native="delProject(project.project_id)">删除
                 </el-button>
                 <el-button style="float: right; padding: 3px 0;margin-right: 20px ;color: red" type="text"
                            @click="editProject(project.project_id)">编辑
@@ -41,11 +41,12 @@
 <script>
 
 
+import {addProject, delProject, getProjectList} from "@/api/system/project";
+
 export default {
     name: "manage",
     data() {
         return {
-            projects: ['融资融券2.0'],
             dialogVisible: false,
             projectInfo: {
                 name: '',
@@ -59,41 +60,31 @@ export default {
     },
     methods: {
         newProject() {
-            let data = new FormData();
-            data.append("name", this.projectInfo.name);
-            data.append("description", this.projectInfo.description);
-            this.$axios.post("manager/project/user", data).then(response => {
-                // eslint-disable-next-line no-console
-                console.log(response.data);
-                this.dialogVisible = false;
-                if (response.data['status'] === '201') {
-                    this.$message('创建项目成功');
-                    this.getProject();
-                } else if (response.data['status'] === '400') {
-                    this.$message('项目名称重复');
+            addProject(this.projectInfo).then(
+                res => {
+                    if (res.data['status'] === '201') {
+                        this.$message('创建项目成功');
+                        this.getProject();
+                    } else if (res.data['status'] === '400') {
+                        this.$message('项目名称重复');
+                    }
+                    this.dialogVisible = false
                 }
-            })
+            ).catch()
         },
         getProject() {
-            this.$axios.get("manager/project/user", {}).then(response => {
-                // eslint-disable-next-line no-console
-                console.log(response.data);
-                this.projectList = response.data;
+            getProjectList().then(res => {
+                this.projectList = res.data;
             })
         },
-        deleteProject(project_id) {
-            // eslint-disable-next-line no-console
-            console.log(project_id);
+        delProject(project_id) {
             this.$confirm('此操作将永久删除该执行记录, 是否继续?', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'
             }).then(() => {
-                let param = {project_id: project_id}
-                this.$axios.delete("manager/project/user/one", {data: param}).then(response => {
-                    // eslint-disable-next-line no-console
-                    console.log(response.data['status'])
-                    if (response.data['status'] === '204') {
+                delProject(project_id).then(res => {
+                    if (res.data['status'] === '204') {
                         this.$message({
                             type: 'success',
                             message: '删除成功!'
@@ -113,16 +104,11 @@ export default {
             console.log(project_id);
         },
         jumpToProject(project_id, name) {
-            // eslint-disable-next-line no-console
-            let data = new FormData();
-            data.append("project_id", project_id);
-            this.$axios.post("manager/project/user/current", data).then(response => {
-                // eslint-disable-next-line no-console
-                if (response.data['status'] === '201') {
-                    this.$message('当前项目 ' + name);
-                    this.$router.push({path: '/home'})
-                }
-            })
+            this.$store.dispatch("SelectProject", project_id).then(() => {
+                this.$message('当前项目 ' + name);
+                this.$router.push("/project")
+            }).catch(() => {
+            });
         }
     }
 }
@@ -145,19 +131,6 @@ export default {
 
 .clearfix:after {
     clear: both
-}
-
-.box-card {
-    margin-top: 20px;
-    margin-left: 20px;
-    width: auto;
-}
-
-.el-aside {
-    background-color: #D3DCE6;
-    color: #333;
-    text-align: center;
-    line-height: 200px;
 }
 
 </style>
