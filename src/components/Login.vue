@@ -7,13 +7,13 @@
             </div>
             <el-tabs type="border-card" v-model="activeName" class="login_tab">
                 <el-tab-pane label="登录" name="login">
-                    <el-form :model="loginRuleForm" status-icon :rules="loginRules" ref="loginRuleForm"
+                    <el-form :model="loginForm" status-icon :rules="loginRules" ref="loginRuleForm"
                              label-width="0px">
                         <el-form-item label="" prop="name">
-                            <el-input type="text" v-model="loginRuleForm.name" placeholder="请输入用户名"></el-input>
+                            <el-input type="text" v-model="loginForm.username" placeholder="请输入用户名"></el-input>
                         </el-form-item>
                         <el-form-item label="" prop="pass">
-                            <el-input type="password" v-model="loginRuleForm.pass" autocomplete="off"
+                            <el-input type="password" v-model="loginForm.password" autocomplete="off"
                                       placeholder="请输入密码"></el-input>
                         </el-form-item>
                         <el-form-item>
@@ -22,17 +22,17 @@
                     </el-form>
                 </el-tab-pane>
                 <el-tab-pane label="注册" name="register">
-                    <el-form :model="registerRuleForm" status-icon :rules="registerRules" ref="registerRuleForm"
+                    <el-form :model="registerForm" status-icon :rules="registerRules" ref="registerRuleForm"
                              label-width="0px">
                         <el-form-item label="" prop="name">
-                            <el-input type="text" v-model="registerRuleForm.name" placeholder="请输入用户名"></el-input>
+                            <el-input type="text" v-model="registerForm.name" placeholder="请输入用户名"></el-input>
                         </el-form-item>
                         <el-form-item label="" prop="pass">
-                            <el-input type="password" v-model="registerRuleForm.pass" autocomplete="off"
+                            <el-input type="password" v-model="registerForm.pass" autocomplete="off"
                                       placeholder="请输入密码"></el-input>
                         </el-form-item>
                         <el-form-item label="" prop="checkPass">
-                            <el-input type="password" v-model="registerRuleForm.checkPass" autocomplete="off"
+                            <el-input type="password" v-model="registerForm.checkPass" autocomplete="off"
                                       placeholder="请确认密码"></el-input>
                         </el-form-item>
                         <el-form-item>
@@ -60,7 +60,7 @@ export default {
             if (value === '') {
                 callback(new Error('请输入密码'));
             } else {
-                if (this.loginRuleForm.checkPass !== '') {
+                if (this.loginForm.checkPass !== '') {
                     this.$refs.loginRuleForm.validateField('checkPass');
                 }
                 callback();
@@ -70,7 +70,7 @@ export default {
             if (value === '') {
                 callback(new Error('请输入密码'));
             } else {
-                if (this.registerRuleForm.checkPass !== '') {
+                if (this.registerForm.checkPass !== '') {
                     this.$refs.registerRuleForm.validateField('checkPass');
                 }
                 callback();
@@ -79,7 +79,7 @@ export default {
         let validatePassConfirm = (rule, value, callback) => {
             if (value === '') {
                 callback(new Error('请再次输入密码'));
-            } else if (value !== this.registerRuleForm.pass) {
+            } else if (value !== this.registerForm.pass) {
                 callback(new Error('两次输入密码不一致!'));
             } else {
                 callback();
@@ -87,25 +87,23 @@ export default {
         };
         return {
             activeName: 'login',
-            userName: '',
-            password: '',
             // 登录表单
-            loginRuleForm: {
-                userName: '',
+            loginForm: {
+                username: '',
                 password: ''
             },
             // 注册表单
-            registerRuleForm: {
+            registerForm: {
                 pass: '',
                 checkPass: '',
                 name: ''
             },
             // 登录表单验证规则
             loginRules: {
-                pass: [
+                password: [
                     {validator: validateLoginPass, trigger: 'blur'}
                 ],
-                name: [
+                username: [
                     {validator: checkName, trigger: 'blur'}
                 ]
             },
@@ -133,8 +131,8 @@ export default {
                 if (valid) {
                     let url = "manager/user/create";
                     let data = new FormData();
-                    data.append('username', this.registerRuleForm.name);
-                    data.append('password', this.registerRuleForm.pass);
+                    data.append('username', this.registerForm.name);
+                    data.append('password', this.registerForm.pass);
                     this.$axios.post(url, data
                     ).then(
                         response => {
@@ -158,25 +156,13 @@ export default {
         login(formName) {
             this.$refs[formName].validate((valid) => {
                 if (valid) {
-                    let url = "manager/user/login";
-                    let data = new FormData();
-                    data.append('username', this.loginRuleForm.name);
-                    data.append('password', this.loginRuleForm.pass);
-                    this.$axios.post(url, data
-                    ).then(
-                        response => {
-                            // eslint-disable-next-line no-console
-                            console.log(response.data);
-                            if (response.data['status'] === '200') {
-                                this.$message('登录成功');
-                                this.$router.push({path: '/manage'})
-                            } else if (response.data['error'] === '用户不存在'){
-                                this.$message('用户不存在');
-                            }else {
-                                this.$message('验证错误');
-                            }
-                        }
-                    )
+                    this.$store.dispatch("Login", this.loginForm).then(() => {
+                        this.$router.push({path: '/',params:{'redirect':'manager'}}).catch(() => {
+                        });
+                    }).catch(() => {
+                        // this.loading = false;
+                    });
+
                 } else {
                     // eslint-disable-next-line no-console
                     console.log('error submit!!');
@@ -191,7 +177,7 @@ export default {
 <style>
 #login {
     background-size: 100% 100%;
-    background: url("../assets/bank.jpg");
+    /*background: url("../assets/bank.jpg");*/
     height: 100%;
     position: fixed;
     width: 100%;

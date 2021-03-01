@@ -1,8 +1,5 @@
 <template>
   <div>
-    <div>
-      <headers activeIndex='/requirement'></headers>
-    </div>
     <div id="Requirement">
       <el-container style="background-color: white;height: 100%;min-height: 100vh;" direction="vertical">
         <el-container>
@@ -83,11 +80,10 @@
 </template>
 
 <script>
-import headers from './header'
 
 export default {
   components: {
-    headers
+
   },
   name: 'requirement',
   data() {

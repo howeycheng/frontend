@@ -1,89 +1,82 @@
 <template>
     <div>
-        <headers activeIndex='/run'></headers>
-        <div>
-            <el-container style="background-color: white;height: 100%;min-height: 100vh;" direction="vertical">
-                <el-container>
-                    <!--左侧侧边栏-->
-                    <el-aside>
-                        <div style="padding-left: 10px">
-                            <i class="el-icon-edit" style="margin: 0;padding: 10px"></i>
-                            <i class="el-icon-share" style="margin: 0;padding: 10px"></i>
-                            <i class="el-icon-delete" style="margin: 0;padding: 10px"></i>
-                        </div>
-                        <div class="req-tree">
-                            <el-tree
-                                ref="setTree"
-                                lazy
-                                :load="loadSetNode"
-                                node-key="rqid"
-                                :expand-on-click-node="true"
-                                @node-click="clickSetNode"
-                            >
+        <el-container style="background-color: white;height: 100%;min-height: 100vh;" direction="vertical">
+            <el-container>
+                <!--左侧侧边栏-->
+                <el-aside>
+                    <div style="padding-left: 10px">
+                        <i class="el-icon-edit" style="margin: 0;padding: 10px"></i>
+                        <i class="el-icon-share" style="margin: 0;padding: 10px"></i>
+                        <i class="el-icon-delete" style="margin: 0;padding: 10px"></i>
+                    </div>
+                    <div class="req-tree">
+                        <el-tree
+                            ref="setTree"
+                            lazy
+                            :load="loadSetNode"
+                            node-key="rqid"
+                            :expand-on-click-node="true"
+                            @node-click="clickSetNode"
+                        >
                                 <span class="req-tree-node" slot-scope="{ node, data }" :title="data.name">
                                     <span>{{ data.name }}</span>
                                 </span>
-                            </el-tree>
-                        </div>
-                    </el-aside>
-                    <el-main id="run-main">
-                        <!--主要区域容器-->
-                        <div id="run-main-ico">
-                            <Button type="primary" @click="run">执行</Button>
-                            <Modal
-                                v-model="modal1"
-                                title="新建执行任务"
-                                @on-ok="ok"
-                                @on-cancel="cancel"
-                                :draggable="true">
-                                <div style="padding: 10px;background: #f8f8f9">
-                                    <Card title="选择执行器" icon="ios-options" :padding="0" shadow style="width: 300px;">
-                                        <CellGroup>
-                                            <p>用例数量 ：{{ casesNum }}</p>
-                                            <!--                                            <Input v-model="ip" placeholder="执行器IP"/>-->
-                                            <!--                                            <br>-->
-                                            <!--                                            <Input v-model="port" placeholder="端口"/>-->
-                                            <!--                                            <br>-->
+                        </el-tree>
+                    </div>
+                </el-aside>
+                <el-main id="run-main">
+                    <!--主要区域容器-->
+                    <div id="run-main-ico">
+                        <Button type="primary" @click="run">执行</Button>
+                        <Modal
+                            v-model="modal1"
+                            title="新建执行任务"
+                            @on-ok="ok"
+                            @on-cancel="cancel"
+                            :draggable="true">
+                            <div style="padding: 10px;background: #f8f8f9">
+                                <Card title="选择执行器" icon="ios-options" :padding="0" shadow style="width: 300px;">
+                                    <CellGroup>
+                                        <p>用例数量 ：{{ casesNum }}</p>
+                                        <label>
                                             <Input v-model="runName" placeholder="执行名称"/>
-                                            <br>
-                                        </CellGroup>
-                                    </Card>
-                                </div>
-                            </Modal>
-                        </div>
-                        <div class="set-tree-div" v-loading.body="caseLoading">
-                            <el-tree
-                                id="set-tree"
-                                :props="setTreeProps"
-                                ref="reqTree"
-                                lazy
-                                :load="loadReqNode"
-                                :key="timer"
-                                @node-expand="setTreeExpand"
-                                node-key="set"
-                                :expand-on-click-node="true"
-                                show-checkbox
-                                @check="check">
+                                        </label>
+                                        <br>
+                                    </CellGroup>
+                                </Card>
+                            </div>
+                        </Modal>
+                    </div>
+                    <div class="set-tree-div" v-loading.body="caseLoading">
+                        <el-tree
+                            id="set-tree"
+                            :props="setTreeProps"
+                            ref="reqTree"
+                            lazy
+                            :load="loadReqNode"
+                            :key="timer"
+                            @node-expand="setTreeExpand"
+                            node-key="set"
+                            :expand-on-click-node="true"
+                            show-checkbox
+                            @check="check">
                                 <span class="set-tree-node" slot-scope="{ node, data }" :title="data.name">
                                     <span>{{ data.name }}</span>
                                 </span>
-                            </el-tree>
-                        </div>
-                    </el-main>
-                </el-container>
+                        </el-tree>
+                    </div>
+                </el-main>
             </el-container>
-        </div>
+        </el-container>
     </div>
 </template>
 
 <script>
-import headers from './header'
 import {Loading} from 'element-ui';
 
 export default {
     name: "run",
     components: {
-        headers,
     },
     data() {
         return {
@@ -151,14 +144,6 @@ export default {
             data.append("runName", this.runName);
             data.append("setId", this.setData);
             this.$axios.post(url, data
-                // {
-                // params: {
-                //     // nameSrvAddr: this.ip + ":" + this.port,
-                //     runName: this.runName,
-                //     setNames: this.casesToRun.toString(),
-                //     setId: this.setData
-                // }
-                // }
             ).then(
                 response => {
                     if (response.data.indexOf("exceptions") !== -1 || response.data.indexOf("error") !== -1) {

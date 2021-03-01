@@ -2,14 +2,15 @@ import Vue from 'vue'
 import Router from 'vue-router'
 
 
-import Home from '../components/Home'
 import Login from '../components/Login'
 import Cases from '../components/Cases'
 import requirement from '../components/Requirement'
 import run from '../components/Run'
 import log from '../components/Log'
 import job from "../components/job";
-import manage from "@/components/manage";
+import manager from "../components/Manager";
+import index from "../views/index"
+import project from "@/components/Project";
 
 // 解决Uncaught (in promise) NavigationDuplicated {_name: “NavigationDuplicated”, name: "NavigationDuplic}的报错问题
 const originalPush = Router.prototype.push
@@ -22,15 +23,44 @@ Vue.use(Router);
 export default new Router({
     mode: 'hash',
     routes: [
-        // {
-        //     path: '/',
-        //     name: 'Home',
-        //     component: Home,
-        // },
         {
-            path: '/home',
-            name: 'Home',
-            component: Home
+            path: '/',
+            name: 'index',
+            component: index,
+            redirect: 'manager',
+            children: [
+                {
+                    path: '/manager',
+                    name: 'manager',
+                    component: manager
+                },
+                {
+                    path: '/project',
+                    name: 'project',
+                    component: project,
+                    children:[
+                        {
+                            path: '/requirement',
+                            name: 'requirement',
+                            component: requirement
+                        },
+                        {
+                            path: '/run',
+                            name: 'run',
+                            component: run
+                        },
+                        {
+                            path: '/job',
+                            name: 'job',
+                            component: job
+                        },
+                        {
+                            path: '/log',
+                            name: 'log',
+                            component: log
+                        }
+                    ]
+                }]
         },
         {
             path: '/cases',
@@ -38,32 +68,7 @@ export default new Router({
             component: Cases
         },
         {
-            path: '/requirement',
-            name: 'requirement',
-            component: requirement
-        },
-        {
-            path: '/run',
-            name: 'run',
-            component: run
-        },
-        {
-            path: '/log',
-            name: 'log',
-            component: log
-        },
-        {
-            path: '/job',
-            name: 'job',
-            component: job
-        },
-        {
-            path: '/manage',
-            name: 'manage',
-            component: manage
-        },
-        {
-            path: '/',
+            path: '/login',
             name: 'Login',
             component: Login
         }

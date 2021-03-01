@@ -1,6 +1,5 @@
 <template>
     <div>
-        <headers activeIndex='/log'></headers>
         <div>
             <el-input
                 v-model="search"
@@ -178,12 +177,10 @@
 </template>
 
 <script>
-import headers from './header'
 
 export default {
     name: "Log",
     components: {
-        headers,
     },
     data() {
         return {
