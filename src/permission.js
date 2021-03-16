@@ -9,8 +9,6 @@ const whiteList = ['/login']
 
 router.beforeEach((to, from, next) => {
   NProgress.start()
-  // eslint-disable-next-line no-console
-  console.log(getToken());
   if (getToken()) {
     /* has token*/
     if (to.path === '/login') {

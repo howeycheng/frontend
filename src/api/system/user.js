@@ -1,7 +1,7 @@
 import request from '@/utils/request'
 
 // 登录方法
-export function login(username,password) {
+export function login(username, password) {
     const data = {
         username,
         password
@@ -24,12 +24,21 @@ export function logout() {
 // 选择项目
 export function selectProject(projectId) {
     const data = {
-        projectId :projectId
+        projectId: projectId
     }
     return request({
         url: 'user/project',
         method: 'post',
         data: data
+    })
+}
+
+// 注册
+export function register(registerInfo) {
+    return request({
+        url: 'user/register',
+        method: 'post',
+        data: registerInfo
     })
 }
 

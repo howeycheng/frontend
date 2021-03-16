@@ -12,15 +12,4 @@ const service = axios.create({
 })
 
 
-// request拦截器
-// service.interceptors.request.use(config => {
-//     return config
-// }, error => {
-//     // eslint-disable-next-line no-console
-//     console.log(error)
-//     Promise.reject(error)
-// })
-
-
-
 export default service

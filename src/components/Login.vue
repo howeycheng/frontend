@@ -7,7 +7,7 @@
             </div>
             <el-tabs type="border-card" v-model="activeName" class="login_tab">
                 <el-tab-pane label="登录" name="login">
-                    <el-form :model="loginForm" status-icon :rules="loginRules" ref="loginRuleForm"
+                    <el-form :model="loginForm" status-icon :rules="loginRules" ref="loginForm"
                              label-width="0px">
                         <el-form-item label="" prop="name">
                             <el-input type="text" v-model="loginForm.username" placeholder="请输入用户名"></el-input>
@@ -17,18 +17,18 @@
                                       placeholder="请输入密码"></el-input>
                         </el-form-item>
                         <el-form-item>
-                            <el-button type="primary" @click="login('loginRuleForm')" class="login_style">提交</el-button>
+                            <el-button type="primary" @click="login('loginForm')" class="login_style">提交</el-button>
                         </el-form-item>
                     </el-form>
                 </el-tab-pane>
                 <el-tab-pane label="注册" name="register">
-                    <el-form :model="registerForm" status-icon :rules="registerRules" ref="registerRuleForm"
+                    <el-form :model="registerForm" status-icon :rules="registerRules" ref="registerForm"
                              label-width="0px">
-                        <el-form-item label="" prop="name">
-                            <el-input type="text" v-model="registerForm.name" placeholder="请输入用户名"></el-input>
+                        <el-form-item label="" prop="username">
+                            <el-input type="text" v-model="registerForm.username" placeholder="请输入用户名"></el-input>
                         </el-form-item>
-                        <el-form-item label="" prop="pass">
-                            <el-input type="password" v-model="registerForm.pass" autocomplete="off"
+                        <el-form-item label="" prop="password">
+                            <el-input type="password" v-model="registerForm.password" autocomplete="off"
                                       placeholder="请输入密码"></el-input>
                         </el-form-item>
                         <el-form-item label="" prop="checkPass">
@@ -36,7 +36,7 @@
                                       placeholder="请确认密码"></el-input>
                         </el-form-item>
                         <el-form-item>
-                            <el-button type="primary" @click="register('registerRuleForm')" class="login_style">提交
+                            <el-button type="primary" @click="register('registerForm')" class="login_style">提交
                             </el-button>
                         </el-form-item>
                     </el-form>
@@ -46,8 +46,9 @@
     </div>
 </template>
 <script>
-
+import {register} from "@/api/system/user";
 export default {
+
     data() {
         let checkName = (rule, value, callback) => {
             if (!value) {
@@ -61,7 +62,7 @@ export default {
                 callback(new Error('请输入密码'));
             } else {
                 if (this.loginForm.checkPass !== '') {
-                    this.$refs.loginRuleForm.validateField('checkPass');
+                    this.$refs.loginForm.validateField('checkPass');
                 }
                 callback();
             }
@@ -71,7 +72,7 @@ export default {
                 callback(new Error('请输入密码'));
             } else {
                 if (this.registerForm.checkPass !== '') {
-                    this.$refs.registerRuleForm.validateField('checkPass');
+                    this.$refs.registerForm.validateField('checkPass');
                 }
                 callback();
             }
@@ -79,7 +80,7 @@ export default {
         let validatePassConfirm = (rule, value, callback) => {
             if (value === '') {
                 callback(new Error('请再次输入密码'));
-            } else if (value !== this.registerForm.pass) {
+            } else if (value !== this.registerForm.password) {
                 callback(new Error('两次输入密码不一致!'));
             } else {
                 callback();
@@ -94,9 +95,9 @@ export default {
             },
             // 注册表单
             registerForm: {
-                pass: '',
+                password: '',
                 checkPass: '',
-                name: ''
+                username: ''
             },
             // 登录表单验证规则
             loginRules: {
@@ -109,60 +110,47 @@ export default {
             },
             // 注册表单验证规则
             registerRules: {
-                pass: [
+                password: [
                     {validator: validatePass, trigger: 'blur'}
                 ],
                 checkPass: [
                     {validator: validatePassConfirm, trigger: 'blur'}
                 ],
-                name: [
+                username: [
                     {validator: checkName, trigger: 'blur'}
                 ]
             }
         };
     },
     methods: {
-        // login() {
-        //     this.$router.push({path: '/home'})
-        // },
         register(formName) {
             // eslint-disable-next-line no-console
             this.$refs[formName].validate((valid) => {
                 if (valid) {
-                    let url = "manager/user/create";
-                    let data = new FormData();
-                    data.append('username', this.registerForm.name);
-                    data.append('password', this.registerForm.pass);
-                    this.$axios.post(url, data
-                    ).then(
-                        response => {
-                            // eslint-disable-next-line no-console
-                            console.log(response.data);
-                            if (response.data['status']  === '400') {
-                                this.$message('用户名已存在');
-                            } else {
-                                this.$message('注册成功');
-                                this.activeName = "login";
-                            }
-                        }
-                    )
+                    register(this.registerForm).then(()=>{
+                        this.$message('注册成功');
+                        location.href = '/index';
+                    }).catch(()=>{
+                        this.$message('用户名已存在');
+                    })
                 } else {
                     // eslint-disable-next-line no-console
                     console.log('error submit!!');
                     return false;
                 }
             });
+
         },
         login(formName) {
             this.$refs[formName].validate((valid) => {
                 if (valid) {
                     this.$store.dispatch("Login", this.loginForm).then(() => {
-                        this.$router.push({path: '/',params:{'redirect':'manager'}}).catch(() => {
+                        this.$message("登录成功")
+                        this.$router.push({path: '/', params: {'redirect': 'manager'}}).catch(() => {
                         });
-                    }).catch(() => {
-                        // this.loading = false;
-                    });
-
+                    }).catch((error) => {
+                        this.$message(error.toString())
+                    })
                 } else {
                     // eslint-disable-next-line no-console
                     console.log('error submit!!');

@@ -4,30 +4,31 @@
             <el-container>
                 <!--左侧侧边栏-->
                 <el-aside>
-                    <div style="padding-left: 10px">
-                        <i class="el-icon-edit" style="margin: 0;padding: 10px"></i>
-                        <i class="el-icon-share" style="margin: 0;padding: 10px"></i>
-                        <i class="el-icon-delete" style="margin: 0;padding: 10px"></i>
-                    </div>
-                    <div class="req-tree">
-                        <el-tree
-                            ref="setTree"
-                            lazy
-                            :load="loadSetNode"
-                            node-key="rqid"
-                            :expand-on-click-node="true"
-                            @node-click="clickSetNode"
-                        >
-                                <span class="req-tree-node" slot-scope="{ node, data }" :title="data.name">
-                                    <span>{{ data.name }}</span>
-                                </span>
-                        </el-tree>
-                    </div>
+                    <el-tree
+                        :props="props"
+                        lazy
+                        ref="setTree"
+                        :load="loadSetNode"
+                        :expand-on-click-node="true"
+                        @node-click="clickSetNode"
+                        :icon-class="setTreeIconClass"
+                    >
+                    </el-tree>
                 </el-aside>
                 <el-main id="run-main">
                     <!--主要区域容器-->
+                    <el-input
+                        type="textarea"
+                        :rows="2"
+                        placeholder="备注信息"
+                        v-model="textarea">
+                    </el-input>
                     <div id="run-main-ico">
-                        <Button type="primary" @click="run">执行</Button>
+                        <el-button type="primary" @click="run" size="mini" style="margin-left: 5px">执行</el-button>
+                        <el-button type="primary" @click="addCaseToSet" size="mini" style="margin-left: 5px">新增
+                        </el-button>
+                        <el-button type="primary" @click="delCaseFromSet" size="mini" style="margin-left: 5px">删除
+                        </el-button>
                         <Modal
                             v-model="modal1"
                             title="新建执行任务"
@@ -47,19 +48,19 @@
                             </div>
                         </Modal>
                     </div>
-                    <div class="set-tree-div" v-loading.body="caseLoading">
+
+                    <div class="set-tree-div">
                         <el-tree
-                            id="set-tree"
+                            v-loading="caseLoading"
                             :props="setTreeProps"
-                            ref="reqTree"
+                            ref="casesTree"
                             lazy
-                            :load="loadReqNode"
+                            :load="loadCasesNode"
                             :key="timer"
-                            @node-expand="setTreeExpand"
                             node-key="set"
                             :expand-on-click-node="true"
                             show-checkbox
-                            @check="check">
+                            :icon-class="setTreeIconClass">
                                 <span class="set-tree-node" slot-scope="{ node, data }" :title="data.name">
                                     <span>{{ data.name }}</span>
                                 </span>
@@ -73,34 +74,37 @@
 
 <script>
 import {Loading} from 'element-ui';
+import {getCasesOfSet, getSets} from "@/api/business/set";
 
 export default {
     name: "run",
-    components: {
-    },
+    components: {},
     data() {
         return {
-            switchValue: true,
+            setTreeIconClass:'el-icon-folder',
+            casesTreeIconClass:'el-icon-folder',
+            props: {
+                label: 'set_name',
+                isLeaf: 'leaf'
+            },
+            textarea: '',
             modal1: false,
-            getReqLeafRes: [],
             setData: '',
             caseLoading: false,
             setTreeProps: {
                 isLeaf: 'leaf'
             },
             timer: '',
-            // ip: '',
-            // port: '',
             runName: '',
             casesToRun: [],
-            casesNum: 0
+            casesNum: 0,
         }
     },
     methods: {
         run() {
             this.caseLoading = true;
             this.casesToRun = [];
-            let checkedNodes = this.$refs.reqTree.getCheckedNodes();
+            let checkedNodes = this.$refs.casesTree.getCheckedNodes();
             if (checkedNodes.length === 0) {
                 this.caseLoading = false;
                 this.$message({
@@ -164,40 +168,25 @@ export default {
             this.$Message.info('Clicked cancel');
         },
         loadSetNode(node, resolve) {
-            // 左边栏需求默认加载方法
-            let url = "unit/set/";
-            if (node.level === 0) {
-                // 发送请求:将数据返回到一个回调函数中
-                this.$axios.get(url, {
-                    params: {
-                        level: 0
-                    }
-                }).then(
-                    response => {
-                        return resolve(response.data);
-                    }
-                )
-                // 这里resolve的数据是后台给的,id用于之后点击发起请求时的参数
-            } else {
-                // this.setData = node.data.table_name;
-                this.$axios.get(url, {
-                    params: {
-                        level: 1,
-                        id: node.data.id
-                    }
-                }).then(
-                    response => {
-                        if (response.data.length === 0) {
-                            let caseLoadingIns = Loading.service({fullscreen: false, text: '加载测试集...'});
-                            node.isLeaf = true;
-                            this.setData = node.data.set_id;
-                            this.timer = new Date().getTime();//每次点击测试集树，重新渲染测试用例树
-                            caseLoadingIns.close();
-                        }
-                        return resolve(response.data)
-                    }
-                )
+            // 默认id为0,查询根节点
+            let id = 0;
+            if (node.level > 0) {
+                id = node.data.id
             }
+            getSets(id).then(res => {
+                for (let i = 0; i < res.data.length; i++) {
+                    if (res.data[i].level === 0) {
+                        res.data[i].set_name = res.data[i].group_name
+                    } else {
+                        res.data[i].leaf = true
+                    }
+                }
+                resolve(res.data)
+            }).catch(error => {
+                // eslint-disable-next-line no-console
+                console.log(error)
+            })
+
         },
         clickSetNode(data, node) {
             if (node.isLeaf) {
@@ -207,76 +196,36 @@ export default {
                 caseLoadingIns.close();
             }
         },
-        loadReqNode(node, resolve) {
-            // 懒加载先保存当前选中的节点key, 展开后再设置一遍解决展开某选中节点后选中被取消的问题
-            if (this.$refs.reqTree !== undefined) this.checkedKeys = this.$refs.reqTree.getCheckedKeys();
-            let url = "unit/reqOfCase/";
-            if (node.level === 0) {
-                // 发送请求:将数据返回到一个回调函数中
-                // 并且响应成功以后会执行then方法中的回调函数
-                this.$axios.get(url, {
-                    params: {
-                        level: "0",
-                        set: this.setData,
-                        tier: ""
+        loadCasesNode(node, resolve) {
+            if (this.$refs.setTree.getCurrentNode() !== null) {
+                // 懒加载先保存当前选中的节点key, 展开后再设置一遍解决展开某选中节点后选中被取消的问题
+                if (this.$refs.casesTree !== undefined) this.checkedKeys = this.$refs.casesTree.getCheckedKeys();
+                let params = {
+                    level: "0",
+                    set: this.setData,
+                    tier: ""
+                }
+                if (node.level !== 0) {
+                    params.level = node.level
+                    params.tier = node.data.tier
+                }
+                getCasesOfSet(params).then(response => {
+                    if (response.data[0].tier.slice(-3) === '000') {
+                        // 避免在用例节点前渲染下拉按钮
+                        for (let i = 0; i < response.data.length; i++) {
+                            response.data[i].leaf = true;
+                        }
                     }
-                }).then(
-                    response => {
-                        return resolve(response.data)
-                    }
-                ).catch(function (rejectedResult) {
-                    // eslint-disable-next-line no-console
-                    console.log(rejectedResult);
+                    return resolve(response.data);
                 })
-            } else {
-                this.$axios.get(url, {
-                    params: {
-                        level: node.level,
-                        set: this.setData,
-                        tier: node.data.tier
-                    }
-                }).then(
-                    response => {
-                        if (response.data.length === 0) {
-                            return resolve(response.data);
-                        }
-                        if (response.data[0].tier.slice(-3) === '000') {
-                            // 避免在用例节点前渲染下拉按钮
-                            for (var i = 0; i < response.data.length; i++) {
-                                response.data[i].leaf = true;
-                            }
-                        }
-                        return resolve(response.data);
-                        // this.$refs.reqTree.data = response.data
-                        // 通过this.$refs获取dom对象
-                    }
-                )
-            }
-            if (this.$refs.reqTree !== undefined) this.$refs.reqTree.setCheckedKeys(this.checkedKeys);
-        },
-        check(data, node) {
-            if (node.checkedNodes.length !== 0) {
-                //若节点状态为选中状态
-                //循环遍历加载其子节点，并将所有子节点勾选状态设置为已勾选
-                //     this.loadReqNode(node,this.resolve);
-                //     console.log(node);
-                //
-                // }else {
-                //     console.log(node);
+                if (this.$refs.casesTree !== undefined) this.$refs.casesTree.setCheckedKeys(this.checkedKeys);
             }
         },
-        setTreeExpand(data, node) {
-            node.expanded = true;
-            let childNodes = node.childNodes;
-            for (let i = childNodes.length - 1; i >= 0; i--) {
-                // let child = childNodes[i];
-            }
-            // console.log("setTreeExpand");
-            let checkedStatus = node.checked;
-            if (checkedStatus === true) {
-                //如果该节点已经被选中，将该节点下所有子节点勾选状态改为已选中
-                // console.log("该节点已经被选中");
-            }
+        addCaseToSet() {
+
+        },
+        delCaseFromSet() {
+
         }
     }
 }
@@ -291,25 +240,16 @@ export default {
     background-color: white;
     color: #333;
     text-align: left;
-    padding: 0px;
+    padding: 0;
 }
 
 #run-main-ico {
-}
-
-#run-main .el-button {
-    margin-left: 10px;
-}
-
-#run-main-ico {
-    padding-left: 10px;
-    padding-top: 10px;
-    padding-bottom: 10px;
+    padding: 10px;
     background-color: #f7f8fa;
 }
 
-.set-tree-div > .el-tree-node__content {
-    background: cadetblue;
+.el-tree {
+    min-width: 100%;
+    display: inline-block;
 }
-
 </style>

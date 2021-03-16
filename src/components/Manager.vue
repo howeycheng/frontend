@@ -61,16 +61,14 @@ export default {
     methods: {
         newProject() {
             addProject(this.projectInfo).then(
-                res => {
-                    if (res.data['status'] === '201') {
-                        this.$message('创建项目成功');
-                        this.getProject();
-                    } else if (res.data['status'] === '400') {
-                        this.$message('项目名称重复');
-                    }
+                (res) => {
+                    this.$message(res.data.msg);
+                    this.getProject();
                     this.dialogVisible = false
                 }
-            ).catch()
+            ).catch((error) => {
+                this.$message(error.response.data.msg);
+            })
         },
         getProject() {
             getProjectList().then(res => {
@@ -83,19 +81,17 @@ export default {
                 cancelButtonText: '取消',
                 type: 'warning'
             }).then(() => {
-                delProject(project_id).then(res => {
-                    if (res.data['status'] === '204') {
-                        this.$message({
-                            type: 'success',
-                            message: '删除成功!'
-                        });
-                        this.getProject();
-                    }
+                delProject(project_id).then(() => {
+                    this.$message({
+                        type: 'success',
+                        message: "删除成功"
+                    });
+                    this.getProject();
                 })
             }).catch(() => {
                 this.$message({
                     type: 'info',
-                    message: '已取消删除'
+                    message: "删除失败"
                 });
             });
         },

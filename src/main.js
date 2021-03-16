@@ -11,6 +11,10 @@ import store from './store'
 import './permission' // permission control
 // import VueCookies from 'vue-cookies'
 
+import codemirror from 'vue-codemirror'
+import 'vue-codemirror/node_modules/codemirror/lib/codemirror.css'
+Vue.use(codemirror)
+
 Vue.use(Cookies);
 Vue.config.productionTip = false;
 Vue.use(ElementUI);

@@ -7,10 +7,11 @@ import Cases from '../components/Cases'
 import requirement from '../components/Requirement'
 import run from '../components/Run'
 import log from '../components/Log'
-import job from "../components/job";
+import job from "../components/Job";
 import manager from "../components/Manager";
 import index from "../views/index"
 import project from "@/components/Project";
+import components from "@/components/Components";
 
 // 解决Uncaught (in promise) NavigationDuplicated {_name: “NavigationDuplicated”, name: "NavigationDuplic}的报错问题
 const originalPush = Router.prototype.push
@@ -38,7 +39,7 @@ export default new Router({
                     path: '/project',
                     name: 'project',
                     component: project,
-                    children:[
+                    children: [
                         {
                             path: '/requirement',
                             name: 'requirement',
@@ -58,6 +59,11 @@ export default new Router({
                             path: '/log',
                             name: 'log',
                             component: log
+                        },
+                        {
+                            path: '/components',
+                            name: 'components',
+                            component: components
                         }
                     ]
                 }]

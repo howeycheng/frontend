@@ -1,18 +1,21 @@
 <template>
     <div>
-
-
     </div>
 </template>
 
 <script>
 
-
     export default {
-        name: "Set",
+        name: "Job",
         components: {
-
         },
+        data() {
+            return {
+
+            }
+
+
+        }
     }
 </script>
 

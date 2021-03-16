@@ -36,10 +36,10 @@ const user = {
             return new Promise((resolve, reject) => {
                 login(username, password).then(res => {
                     setToken(res.data.token)
-                    commit('SET_TOKEN', res.data.token)
+                    commit('SET_TOKEN', res.data)
                     resolve()
                 }).catch(error => {
-                    reject(error)
+                    reject(error.response.data.msg)
                 })
             })
         },

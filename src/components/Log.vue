@@ -66,11 +66,9 @@
                     <Card title="选择执行器" icon="ios-options" :padding="0" shadow style="width: 300px;">
                         <CellGroup>
                             <p>用例数量 ：{{ casesNum }}</p>
-                            <!--                                            <Input v-model="ip" placeholder="执行器IP"/>-->
-                            <!--                                            <br>-->
-                            <!--                                            <Input v-model="port" placeholder="端口"/>-->
-                            <!--                                            <br>-->
-                            <Input v-model="runName" placeholder="执行名称"/>
+                            <label>
+                                <Input v-model="runName" placeholder="执行名称"/>
+                            </label>
                             <br>
                         </CellGroup>
                     </Card>
@@ -178,13 +176,13 @@
 
 <script>
 
+import {getLog} from "@/api/business/log";
+
 export default {
     name: "Log",
-    components: {
-    },
+    components: {},
     data() {
         return {
-            value1: false,
             run: [],
             drawer: false,
             runData: [],
@@ -193,8 +191,6 @@ export default {
             loadingSet: false,
             pageSize: 20,
             currentPage: 1,
-            runDataOneDetail: [],
-            compData: [],
             valueDescriptionList: [],
             resultValueDescriptionList: [],
             checkValueDescriptionList: [],
@@ -213,24 +209,18 @@ export default {
     },
     methods: {
         getRun() {
-            let url = "unit/runLog/";
-            this.$axios.get(url, {
-                params: {}
-            }).then(
-                response => {
-                    // eslint-disable-next-line no-console
-                    console.log(response.data);
-                    this.run = response.data;
-                }
-            )
+            getLog().then(res => {
+                this.run = res.data
+            }).catch(error => {
+                // eslint-disable-next-line no-console
+                console.log(error);
+            })
         },
         rowDblClick(row) {
             this.valueDescriptionList = [];
             this.checkValueDescriptionList = [];
             this.resultValueDescriptionList = [];
             this.drawer = true;
-            // eslint-disable-next-line no-console
-            console.log(row['run_id']);
             this.runData = [];
             this.loadingSet = true;
             let url = "unit/runLog/set/";
@@ -240,8 +230,6 @@ export default {
                 }
             }).then(
                 response => {
-                    // eslint-disable-next-line no-console
-                    console.log(response.data);
                     if (Object.keys(response.data).length !== 0) {
                         this.runData = response.data;
                     }
@@ -289,8 +277,6 @@ export default {
                     this.checkValueDescriptionList.push(valueDescriptionMapOne);
                 }
             }
-            // eslint-disable-next-line no-console
-            console.log(this.valueDescriptionList)
         },
         currentChange: function (currentPage) {
             this.currentPage = currentPage;
@@ -305,8 +291,6 @@ export default {
             return '';
         },
         runDelete(index, row) {
-            // eslint-disable-next-line no-console
-            console.log(index, row);
             this.$confirm('此操作将永久删除该执行记录, 是否继续?', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
@@ -314,8 +298,6 @@ export default {
             }).then(() => {
                 let param = {id: row['run_id']}
                 this.$axios.delete("unit/run/id", {data: param}).then(response => {
-                    // eslint-disable-next-line no-console
-                    console.log(response.data['status'])
                     if (response.data['status'] === '204') {
                         this.$message({
                             type: 'success',
@@ -341,18 +323,12 @@ export default {
 
         },
         runAgain(index, row) {
-            // eslint-disable-next-line no-console
-            console.log(index, row);
-            // eslint-disable-next-line no-console
-            console.log(row['set_id']);
             this.setData = row['set_id'];
             this.$axios.get("unit/runLog/set/error", {
                 params: {
                     run_id: row['run_id']
                 }
             }).then(response => {
-                // eslint-disable-next-line no-console
-                console.log(response.data)
                 this.casesNum = response.data.length;
                 if (this.casesNum !== 0) {
                     this.casesToRun = response.data;
@@ -375,8 +351,6 @@ export default {
                             type: 'warning'
                         });
                     }
-                    // eslint-disable-next-line no-console
-                    console.log(response.data);
                 }
             ).catch(function (rejectedResult) {
                 // eslint-disable-next-line no-console
