@@ -36,7 +36,11 @@
                             @on-cancel="cancel"
                             :draggable="true">
                             <div style="padding: 10px;background: #f8f8f9">
-                                <Card title="选择执行器" icon="ios-options" :padding="0" shadow style="width: 300px;">
+                                <Card title="" icon="ios-options" :padding="0" shadow style="width: 300px;">
+                                    <CellGroup>
+                                        <el-radio v-model="runMode" label="1">顺序执行</el-radio>
+                                        <el-radio v-model="runMode" label="2">并发执行</el-radio>
+                                    </CellGroup>
                                     <CellGroup>
                                         <p>用例数量 ：{{ casesNum }}</p>
                                         <label>
@@ -74,15 +78,17 @@
 
 <script>
 import {Loading} from 'element-ui';
-import {getCasesOfSet, getSets} from "@/api/business/set";
+import {getCasesOfReqInSet, getCasesOfSet, getSets} from "@/api/business/set";
+import {run} from "@/api/business/run";
 
 export default {
     name: "run",
     components: {},
     data() {
         return {
-            setTreeIconClass:'el-icon-folder',
-            casesTreeIconClass:'el-icon-folder',
+            runMode: '1', // 1:顺序执行，2：并发执行
+            setTreeIconClass: 'el-icon-folder',
+            casesTreeIconClass: 'el-icon-folder',
             props: {
                 label: 'set_name',
                 isLeaf: 'leaf'
@@ -96,59 +102,58 @@ export default {
             },
             timer: '',
             runName: '',
-            casesToRun: [],
+            checkedCases: [],
             casesNum: 0,
         }
     },
     methods: {
-        run() {
-            this.caseLoading = true;
-            this.casesToRun = [];
-            let checkedNodes = this.$refs.casesTree.getCheckedNodes();
-            if (checkedNodes.length === 0) {
-                this.caseLoading = false;
-                this.$message({
-                    showClose: true,
-                    message: "未选中测试用例",
-                    type: 'warning'
-                });
-            } else {
-                let checkedCases = [];
-                for (let i = checkedNodes.length - 1; i >= 0; i--) {
-                    let child = checkedNodes[i];
-                    checkedCases.push(child['id'] + ' ' + child['case_id'] + ' ' + child['tier'])
+        getCheckedCases() {
+            return new Promise((resolve, reject) => {
+                this.caseLoading = true;
+                this.checkedCases = [];
+                let checkedNodes = this.$refs.casesTree.getCheckedNodes();
+                if (checkedNodes.length === 0) {
+                    this.caseLoading = false;
+                    this.$message({
+                        showClose: true,
+                        message: "未选中测试用例",
+                        type: 'warning'
+                    });
+                } else {
+                    let checkedCases = [];
+                    for (let i = checkedNodes.length - 1; i >= 0; i--) {
+                        let child = checkedNodes[i];
+                        checkedCases.push(child['id'] + ' ' + child['case_id'] + ' ' + child['tier'])
+                    }
+                    let params = {
+                        checkedCases: checkedCases + '',
+                        set: this.setData,
+                    }
+                    getCasesOfReqInSet(params).then(response => {
+                        resolve(response.data);
+                    }).catch(function (rejectedResult) {
+                        reject(rejectedResult)
+                    })
                 }
-                let url = "unit/casesToRun/";
-                this.$axios.get(url, {
-                        params: {
-                            checkedCases: checkedCases + '',
-                            set: this.setData,
-                        }
-                    }
-                ).then(
-                    response => {
-                        this.casesToRun = response.data;
-                        this.caseLoading = false;
-                        this.modal1 = true;
-                        this.casesNum = this.casesToRun.length;
-                        // eslint-disable-next-line no-console
-                        console.log(this.casesToRun);
-                    }
-                ).catch(function (rejectedResult) {
-                    // eslint-disable-next-line no-console
-                    console.log(rejectedResult);
-                })
-            }
+            })
         },
-        // 确认开始执行
+        run() {
+            this.getCheckedCases().then(res => {
+                this.checkedCases = res;
+                this.caseLoading = false;
+                this.casesNum = res.length
+                this.modal1 = true;
+            })
+        },
+        addCaseToSet() {
+
+        },
+        delCaseFromSet() {
+
+        },
+// 确认开始执行
         ok() {
-            let url = "unit/run/";
-            let data = new FormData();
-            data.append("setNames", this.casesToRun.toString());
-            data.append("runName", this.runName);
-            data.append("setId", this.setData);
-            this.$axios.post(url, data
-            ).then(
+            run(this.checkedCases.toString(), this.runName, this.setData, this.radio).then(
                 response => {
                     if (response.data.indexOf("exceptions") !== -1 || response.data.indexOf("error") !== -1) {
                         this.$message({
@@ -186,7 +191,6 @@ export default {
                 // eslint-disable-next-line no-console
                 console.log(error)
             })
-
         },
         clickSetNode(data, node) {
             if (node.isLeaf) {
@@ -220,12 +224,6 @@ export default {
                 })
                 if (this.$refs.casesTree !== undefined) this.$refs.casesTree.setCheckedKeys(this.checkedKeys);
             }
-        },
-        addCaseToSet() {
-
-        },
-        delCaseFromSet() {
-
         }
     }
 }

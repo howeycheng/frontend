@@ -5,6 +5,12 @@
                 v-model="search"
                 size="mini"
                 placeholder="输入关键字搜索"/>
+            <div style="text-align: right">
+                <el-switch
+                    v-model="flushEnable"
+                    active-text="自动刷新">
+                </el-switch>
+            </div>
             <el-table
                 size="mini"
                 :data="run.filter(data => !search || data.run_name.includes(search))"
@@ -183,6 +189,7 @@ export default {
     components: {},
     data() {
         return {
+            flushEnable: true,
             run: [],
             drawer: false,
             runData: [],
@@ -201,11 +208,28 @@ export default {
             casesNum: 0,
             casesToRun: [],
             runName: "",
-            setData: ""
+            setData: "",
+            timer: '',
         }
     },
     mounted: function () {
         this.getRun();
+    },
+    watch: {
+        flushEnable: {
+            handler(flushEnable) {
+                if (flushEnable) {
+                    this.timer = setInterval(this.getRun, 5000);
+                }
+                else {
+                    clearInterval(this.timer);
+                }
+            },
+            immediate: true
+        }
+    },
+    beforeDestroy() {
+        clearInterval(this.timer);
     },
     methods: {
         getRun() {

@@ -14,15 +14,16 @@
                             <el-tree
                                 ref="tree"
                                 lazy
+                                :props="props"
                                 :load="loadNode"
                                 node-key="id"
                                 :expand-on-click-node="true"
                                 @node-click="nodeClick"
                                 :icon-class="reqTreeIconClass"
                             >
-                                <span class="tree-node" slot-scope="{ node, data }" :title="data.name">
-                                    <span>{{ data.name }}</span>
-                                </span>
+                                <!--                                <span class="tree-node" slot-scope="{ node, data }" :title="data.name">-->
+                                <!--                                    <span>{{ data.name }}</span>-->
+                                <!--                                </span>-->
                             </el-tree>
                         </div>
                     </el-aside>
@@ -88,6 +89,10 @@ export default {
     name: 'requirement',
     data() {
         return {
+            props: {
+                label: 'name',
+                isLeaf: 'leaf'
+            },
             reqTreeIconClass: 'el-icon-folder',
             tableData: []
         }
@@ -96,23 +101,20 @@ export default {
         loadNode(node, resolve) {
             if (node.level === 0) {
                 let url = "unit/req/";
-                // 发送请求:将数据返回到一个回到函数中
-                // 并且响应成功以后会执行then方法中的回调函数
                 this.$axios.get(url, {}).then(
                     response => {
-                        if (Object.keys(response.data).length !== 0) {
-                            return resolve(response.data);
-                        } else {
-                            return resolve();
+                        if (Object.keys(response.data).length === 0) {
+                            node.isLeaf = true;
                         }
+                        return resolve(response.data);
                     }
                 )
                 // 这里resolve的数据是后台给的,id用于之后点击发起请求时的参数
             } else {
-                this.getTreeChild(node.data.id, resolve);
+                this.getTreeChild(node, node.data.id, resolve);
             }
         },
-        getTreeChild(id, resolve) {
+        getTreeChild(node, id, resolve) {
             let url = "unit/req/";
             this.$axios.get(url, {
                 params: {
@@ -120,11 +122,10 @@ export default {
                 }
             }).then(
                 response => {
-                    if (Object.keys(response.data).length !== 0) {
-                        return resolve(response.data);
-                    } else {
-                        return resolve();
+                    if (Object.keys(response.data).length === 0) {
+                        node.isLeaf = true;
                     }
+                    return resolve(response.data);
                 }
             )
         },

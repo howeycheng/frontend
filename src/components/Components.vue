@@ -35,7 +35,7 @@
 import {getComponents, getComponentScript} from "@/api/business/components";
 
 // https://codemirror.net/
-import { codemirror } from 'vue-codemirror'
+import {codemirror} from 'vue-codemirror'
 // 核心样式
 import 'vue-codemirror/node_modules/codemirror/lib/codemirror.css'
 // 引入主题后还需要在 options 中指定主题才会生效
@@ -118,7 +118,8 @@ export default {
     min-width: 100%;
     display: inline-block;
 }
-.el-divider--horizontal{
+
+.el-divider--horizontal {
     margin-top: 8px;
     margin-bottom: 8px;
 }

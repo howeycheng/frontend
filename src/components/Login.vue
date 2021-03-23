@@ -139,7 +139,6 @@ export default {
                     return false;
                 }
             });
-
         },
         login(formName) {
             this.$refs[formName].validate((valid) => {
@@ -158,7 +157,6 @@ export default {
                 }
             });
         }
-
     }
 }
 </script>

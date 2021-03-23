@@ -18,3 +18,12 @@ export function getCasesOfSet(params){
         params: params
     })
 }
+
+export function getCasesOfReqInSet(params){
+    return request({
+        url: 'apis/unit/casesToRun/',
+        method:'get',
+        params: params
+    })
+}
+
