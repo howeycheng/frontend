@@ -67,6 +67,7 @@
                                             @click="handleEdit(scope.$index, scope.row)">编辑
                                         </el-button>
                                         <el-button
+                                            style="color: red"
                                             size="mini"
                                             type="danger"
                                             @click="handleDelete(scope.$index, scope.row)">删除

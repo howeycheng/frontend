@@ -47,18 +47,19 @@
                     label="总用例条数">
                 </el-table-column>
                 <el-table-column
-                    align="right">
+                    fixed="right">
                     <template slot-scope="scope">
-                        <el-button
-                            size="mini"
-                            type=""
-                            @click="runAgain(scope.$index, scope.row)">失败用例重跑
-                        </el-button>
-                        <el-button
-                            size="mini"
-                            type="danger"
-                            @click="runDelete(scope.$index, scope.row)">删除
-                        </el-button>
+                        <div>
+                            <el-button
+                                size="mini"
+                                @click="runAgain(scope.$index, scope.row)">失败用例重跑
+                            </el-button>
+                            <el-button
+                                size="mini"
+                                type="danger"
+                                @click="runDelete(scope.$index, scope.row)">删除
+                            </el-button>
+                        </div>
                     </template>
                 </el-table-column>
             </el-table>
@@ -220,8 +221,7 @@ export default {
             handler(flushEnable) {
                 if (flushEnable) {
                     this.timer = setInterval(this.getRun, 5000);
-                }
-                else {
+                } else {
                     clearInterval(this.timer);
                 }
             },
@@ -322,10 +322,10 @@ export default {
             }).then(() => {
                 let param = {id: row['run_id']}
                 this.$axios.delete("unit/run/id", {data: param}).then(response => {
-                    if (response.data['status'] === '204') {
+                    if (response.status === 200) {
                         this.$message({
                             type: 'success',
-                            message: '删除成功!'
+                            message: '删除成功!,共删除相关用例' + response.data['runSetDel'] + '条'
                         });
                         this.getRun();
                     }
@@ -357,6 +357,11 @@ export default {
                 if (this.casesNum !== 0) {
                     this.casesToRun = response.data;
                     this.modal1 = true;
+                }else {
+                    this.$message({
+                        type: 'info',
+                        message: '当前执行日志没有执行失败用例!'
+                    });
                 }
             })
         },

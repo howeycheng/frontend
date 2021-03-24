@@ -9,7 +9,6 @@
             router>
             <el-menu-item index="/requirement">测试需求</el-menu-item>
             <el-menu-item index="/run">用例执行</el-menu-item>
-            <el-menu-item index="/job">任务管理</el-menu-item>
             <el-menu-item index="/log">日志查询</el-menu-item>
             <el-menu-item index="/components">组件管理</el-menu-item>
         </el-menu>

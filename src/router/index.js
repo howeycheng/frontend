@@ -7,7 +7,6 @@ import Cases from '../components/Cases'
 import requirement from '../components/Requirement'
 import run from '../components/Run'
 import log from '../components/Log'
-import job from "../components/Job";
 import manager from "../components/Manager";
 import index from "../views/index"
 import project from "@/components/Project";
@@ -49,11 +48,6 @@ export default new Router({
                             path: '/run',
                             name: 'run',
                             component: run
-                        },
-                        {
-                            path: '/job',
-                            name: 'job',
-                            component: job
                         },
                         {
                             path: '/log',
