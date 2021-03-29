@@ -3,7 +3,7 @@
         <el-header>
             <div class="title">
                 <img class="title-img" src="../assets/title.png" alt="">
-                <span class="title-text">自动化测试平台</span>
+                <span class="title-text">浩辉测试平台</span>
                 <el-dropdown style="float: right">
                     <Icon type="ios-contact-outline" size="35" color="white" style=""/>
                     <el-dropdown-menu slot="dropdown">

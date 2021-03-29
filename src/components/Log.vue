@@ -111,6 +111,13 @@
                     prop=case_clazz
                     label="用例名称">
                 </el-table-column>
+                <el-table-column
+                    prop=runner_result
+                    label="执行状态"
+                    column-key="runner_result"
+                    :filters="[{ text: '成功', value: 0 }, { text: '失败', value: 1 }]"
+                    :filter-method="filterRunResult">
+                </el-table-column>
             </el-table>
             <el-drawer
                 title="组件信息"
@@ -256,6 +263,13 @@ export default {
                 response => {
                     if (Object.keys(response.data).length !== 0) {
                         this.runData = response.data;
+                        // for (let i = 0; i < this.runData.length; i++) {
+                        //     if (this.runData[i]['runner_result'] === 0){
+                        //         this.runData[i]['runner_result'] = '成功'
+                        //     }else {
+                        //         this.runData[i]['runner_result'] = '失败'
+                        //     }
+                        // }
                     }
                     this.loadingSet = false;
                     this.setNums = this.runData.length;
@@ -389,6 +403,10 @@ export default {
         cancel() {
             this.$Message.info('Clicked cancel');
         },
+        filterRunResult(value, row, column){
+            const property = column['property'];
+            return row[property] === value;
+        }
     }
 }
 </script>

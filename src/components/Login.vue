@@ -3,7 +3,7 @@
         <div class="login_form">
             <img src="../assets/main.png" alt="" class="icon">
             <div class="text">
-                自动化测试平台
+                浩辉测试平台
             </div>
             <el-tabs type="border-card" v-model="activeName" class="login_tab">
                 <el-tab-pane label="登录" name="login">
@@ -162,8 +162,9 @@ export default {
 </script>
 <style>
 #login {
-    background-size: 100% 100%;
-    /*background: url("../assets/bank.jpg");*/
+    /*background-size: 100% 100%;*/
+    background: url("../assets/bank.jpg");
+    background-size: cover;
     height: 100%;
     position: fixed;
     width: 100%;
