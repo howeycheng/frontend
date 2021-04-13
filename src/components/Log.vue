@@ -197,7 +197,7 @@ export default {
     components: {},
     data() {
         return {
-            flushEnable: true,
+            flushEnable: false,
             run: [],
             drawer: false,
             runData: [],
@@ -205,6 +205,7 @@ export default {
             drawerOne: false,
             loadingSet: false,
             pageSize: 20,
+            pageSizes:[20, 50, 100, 200, 300, 500],
             currentPage: 1,
             valueDescriptionList: [],
             resultValueDescriptionList: [],
@@ -227,6 +228,7 @@ export default {
         flushEnable: {
             handler(flushEnable) {
                 if (flushEnable) {
+                    this.getRun();
                     this.timer = setInterval(this.getRun, 5000);
                 } else {
                     clearInterval(this.timer);
@@ -263,13 +265,6 @@ export default {
                 response => {
                     if (Object.keys(response.data).length !== 0) {
                         this.runData = response.data;
-                        // for (let i = 0; i < this.runData.length; i++) {
-                        //     if (this.runData[i]['runner_result'] === 0){
-                        //         this.runData[i]['runner_result'] = '成功'
-                        //     }else {
-                        //         this.runData[i]['runner_result'] = '失败'
-                        //     }
-                        // }
                     }
                     this.loadingSet = false;
                     this.setNums = this.runData.length;
@@ -404,6 +399,7 @@ export default {
             this.$Message.info('Clicked cancel');
         },
         filterRunResult(value, row, column){
+            this.pageSize = this.runData.length;
             const property = column['property'];
             return row[property] === value;
         }
