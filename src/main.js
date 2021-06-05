@@ -10,9 +10,9 @@ import Cookies from 'js-cookie';
 import store from './store'
 import './permission' // permission control
 // import VueCookies from 'vue-cookies'
-
 import codemirror from 'vue-codemirror'
 import 'vue-codemirror/node_modules/codemirror/lib/codemirror.css'
+
 Vue.use(codemirror)
 
 Vue.use(Cookies);
@@ -25,7 +25,7 @@ Vue.prototype.GLOBAL = global;
 Vue.prototype.$axios.defaults.withCredentials = true
 Vue.prototype.$Cookies = Cookies;
 // http request 拦截器
-const url =  process.env.VUE_APP_BASE_API + '/apis/';
+const url = process.env.VUE_APP_BASE_API + '/apis/';
 axios.interceptors.request.use(
     config => {
         let cookies = Cookies.get('csrftoken');

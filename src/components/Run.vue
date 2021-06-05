@@ -4,7 +4,14 @@
             <el-container>
                 <!--左侧侧边栏-->
                 <el-aside>
+                    <div>
+                        <el-button icon="el-icon-circle-plus-outline" size="mini" style="margin-left: 5px;margin-top: 5px"></el-button>
+                        <el-button icon="el-icon-edit" size="mini" style="margin-left: 5px;margin-top: 5px"></el-button>
+                        <el-button icon="el-icon-delete" size="mini" style="margin-left: 5px;margin-top: 5px"></el-button>
+                    </div>
+                    <el-divider></el-divider>
                     <el-tree
+                        :highlight-current=true
                         :props="props"
                         lazy
                         ref="setTree"
@@ -249,5 +256,16 @@ export default {
 .el-tree {
     min-width: 100%;
     display: inline-block;
+}
+
+.el-tree--highlight-current .el-tree-node.is-current > .el-tree-node__content {
+    background-color: white;
+}
+.el-tree-node__expand-icon {
+    color: black;
+}
+.el-divider--horizontal {
+    margin-top: 8px;
+    margin-bottom: 8px;
 }
 </style>

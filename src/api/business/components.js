@@ -23,3 +23,25 @@ export function getComponentScript(componentId) {
         params: params
     })
 }
+
+export function addComponentDir(componentId) {
+    const params = {
+        'id' : componentId
+    }
+    return request({
+        url: 'apis/unit/component/script',
+        method: 'get',
+        params: params
+    })
+}
+
+export function addComponent(componentId) {
+    const params = {
+        'id' : componentId
+    }
+    return request({
+        url: 'apis/unit/component/script',
+        method: 'get',
+        params: params
+    })
+}
