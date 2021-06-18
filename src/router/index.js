@@ -12,6 +12,7 @@ import index from "../views/index"
 import project from "@/components/Project";
 import components from "@/components/Components";
 import CasesEditor from "@/components/CasesEditor";
+import ComponentsEditor from "@/components/ComponentsEditor";
 
 // 解决Uncaught (in promise) NavigationDuplicated {_name: “NavigationDuplicated”, name: "NavigationDuplic}的报错问题
 const originalPush = Router.prototype.push
@@ -72,6 +73,11 @@ export default new Router({
             path: '/casesEditor',
             name: 'CasesEditor',
             component: CasesEditor
+        },
+        {
+            path: '/componentsEditor',
+            name: 'ComponentsEditor',
+            component: ComponentsEditor
         },
         {
             path: '/login',

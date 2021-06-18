@@ -5,35 +5,40 @@
                 <!--左侧侧边栏-->
                 <el-aside width="280px">
                     <div>
-                        <el-tooltip class="item" effect="dark" content="新建组件文件夹" placement="top-start"
+                        <el-tooltip class="item" effect="dark" content="新建目录" placement="top-start"
                                     style="color:black;">
-                            <el-button icon="el-icon-circle-plus-outline" @click="newCompDir" size="mini"
+                            <el-button icon="el-icon-folder-add" @click="newCompDir" size="mini"
                                        style="margin-left: 5px;margin-top: 5px"></el-button>
                         </el-tooltip>
-                        <el-tooltip class="item" effect="dark" content="上传组件" placement="top-start"
+                        <el-tooltip class="item" effect="dark" content="新增组件" placement="top-start"
                                     style="color:black;">
-                            <el-button icon="el-icon-top" @click="newComp" size="mini"
+                            <el-button icon="el-icon-document-add" @click="newComp" size="mini"
                                        style="margin-left: 5px;margin-top: 5px"></el-button>
                         </el-tooltip>
-                        <el-tooltip class="item" effect="dark" content="修改组件文件夹" placement="top-start"
+                        <el-tooltip class="item" effect="dark" content="修改" placement="top-start"
                                     style="color:black;">
                             <el-button icon="el-icon-edit" size="mini" @click="editComp"
                                        style="margin-left: 5px;margin-top: 5px"></el-button>
                         </el-tooltip>
-                        <el-tooltip class="item" effect="dark" content="删除组件或文件夹" placement="top-start"
+                        <el-tooltip class="item" effect="dark" content="删除" placement="top-start"
                                     style="color:black;">
                             <el-button icon="el-icon-delete" size="mini" @click="deleteComp"
+                                       style="margin-left: 5px;margin-top: 5px"></el-button>
+                        </el-tooltip>
+                        <el-tooltip class="item" effect="dark" content="刷新" placement="top-start"
+                                    style="color:black;">
+                            <el-button icon="el-icon-refresh" size="mini" @click="clearCurrent"
                                        style="margin-left: 5px;margin-top: 5px"></el-button>
                         </el-tooltip>
                     </div>
                     <Modal
                         v-model="modal"
                         title="新建组件文件夹"
-                        @on-ok="ensureAdd"
+                        @on-ok="newCompDirCommit"
                         @on-cancel="cancel"
                         :draggable="true">
                         <div style="padding: 10px;background: #f8f8f9">
-                            <Card title="" icon="ios-options" :padding="0" >
+                            <Card title="" icon="ios-options" :padding="0">
                                 <CellGroup>
                                     <label>
                                         <Input v-model="compDirName" placeholder="组件文件夹名称"/>
@@ -54,13 +59,16 @@
                         lazy
                         ref="compTree"
                         @node-click="click"
-                        :icon-class="iconClass"
+                        node-key="id"
                     >
+                        <span slot-scope="{ node, data }">
+                            <i :class="data.icon"></i>
+                            <span style="padding-left: 4px;font-size:14px;color: #0077aa">{{ node.label }}</span>
+                        </span>
                     </el-tree>
                 </el-aside>
                 <el-main id="run-main" v-show="show">
                     <!--主要区域容器-->
-                    <el-divider></el-divider>
                     <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
                         <el-tab-pane label="脚本" name="first">
                             <div id="edit">
@@ -72,6 +80,25 @@
                             </div>
                         </el-tab-pane>
                         <el-tab-pane label="参数" name="second">
+                            <el-table
+                                :data="compData"
+                                stripe
+                                style="width: 100%">
+                                <el-table-column
+                                    prop="field"
+                                    label="字段"
+                                    width="180">
+                                </el-table-column>
+                                <el-table-column
+                                    prop="value"
+                                    label="默认值"
+                                    width="180">
+                                </el-table-column>
+                                <el-table-column
+                                    prop="description"
+                                    label="描述信息">
+                                </el-table-column>
+                            </el-table>
                         </el-tab-pane>
                     </el-tabs>
                 </el-main>
@@ -82,7 +109,7 @@
 </template>
 
 <script>
-import {getComponents, getComponentScript} from "@/api/business/components";
+import {addComponentDir, delComponentDir, getComponents, getComponentScript} from "@/api/business/components";
 
 // https://codemirror.net/
 import {codemirror} from 'vue-codemirror'
@@ -99,8 +126,13 @@ export default {
     },
     data() {
         return {
-            compDirName:'',
-            compDirNameDescrip:'',
+            compData: [
+            ],
+            compTreeRootNode: null, // 组件树根节点,用于手动更新树
+            compTreeCurrentNode: null, // 组件树当前选中节点,用于手动更新树,如果当前没有选中节点，则将其设置为根节点
+            parentId: 0, // 当前选择节点ID
+            compDirName: '', // 待新增组件文件夹名称
+            compDirNameDescrip: '', // 待新增组件文件夹描述信息
             modal: false,
             activeName: 'first',
             iconClass: 'el-icon-folder',
@@ -129,21 +161,20 @@ export default {
     },
     methods: {
         cancel() {
-            this.$Message.info('Clicked cancel');
+            this.$Message.info('新增取消');
         },
         // 新建组件文件夹
         newCompDir() {
-            // eslint-disable-next-line no-unused-vars
-            let parentId = 0;
+            // 判断是否选中节点
             if (this.$refs.compTree.getCurrentNode() === null) {
                 this.modal = true;
-            }else{
-                parentId = this.$refs.compTree.getCurrentNode()['id'];
-                // eslint-disable-next-line no-console
-                console.log(this.$refs.compTree.getCurrentNode());
+                this.compTreeCurrentNode = this.compTreeRootNode;
+            } else {
+                this.parentId = this.$refs.compTree.getCurrentNode()['id'];
+                this.compTreeCurrentNode = this.$refs.compTree.getNode(this.parentId);
                 if (this.$refs.compTree.getCurrentNode()['type'] === 0) {
                     this.modal = true;
-                }else {
+                } else {
                     this.$message({
                         showClose: true,
                         message: "请选择正确的组件文件夹父节点",
@@ -152,40 +183,131 @@ export default {
                 }
             }
         },
-        // 新建组件
-        newComp() {
-            //    首先判断是否选中叶子文件夹
-            // eslint-disable-next-line no-console
-            console.log(this.$refs.compTree.getCurrentNode()['script_name']);
-            if (this.$refs.compTree.getCurrentNode()['script_name'] === '') {
-                // eslint-disable-next-line no-console
-                console.log('可以上传');
+        newCompDirCommit() {
+            if (this.compDirName === '') {
+                this.$message({
+                    showClose: true,
+                    message: "请输入组件文件夹名称",
+                    type: 'warning'
+                });
+            } else {
+                addComponentDir(this.parentId, this.compDirName, this.compDirNameDescrip, 0).then(res => {
+                    if (res.status === 200) {
+                        this.compTreeCurrentNode.loaded = false;
+                        this.compTreeCurrentNode.expand();
+                    }
+                }).catch()
             }
         },
-        ensureAdd() {
-
+        // 新建组件
+        tipsForNewComp() {
+            this.$message({
+                showClose: true,
+                message: "请选择叶子组件文件夹",
+                type: 'warning'
+            });
+        },
+        newComp() {
+            //    首先判断是否选中叶子文件夹
+            let currentNodeData = this.$refs.compTree.getCurrentNode();
+            if (currentNodeData !== null) {
+                if (currentNodeData['type'] === 0) {
+                    getComponents(currentNodeData['id']).then(res => {
+                        if (res.data.length === 0) {
+                            // eslint-disable-next-line no-console
+                            console.log("可以新建组件")
+                            const {href} = this.$router.resolve({
+                                path: './componentsEditor',
+                                query: {
+                                    id: currentNodeData['id'],
+                                }
+                            });
+                            window.open(href, '_blank');
+                        } else {
+                            if (res.data[0]['type'] === 1) {
+                                // eslint-disable-next-line no-console
+                                console.log("可以新建组件")
+                                const {href} = this.$router.resolve({
+                                    path: './componentsEditor',
+                                    query: {
+                                        id: currentNodeData['id'],
+                                    }
+                                });
+                                window.open(href, '_blank');
+                            } else {
+                                this.tipsForNewComp();
+                            }
+                        }
+                    })
+                } else {
+                    this.tipsForNewComp();
+                }
+            } else {
+                this.tipsForNewComp();
+            }
+        },
+        clearCurrent() {
+            this.$refs.compTree.setCurrentKey(null);
         },
         editComp() {
 
         },
         deleteComp() {
-
+            if (this.$refs.compTree.getCurrentNode() === null) {
+                this.$message({
+                    showClose: true,
+                    message: "请选择要删除的组件文件夹",
+                    type: 'warning'
+                });
+            } else {
+                let id = this.$refs.compTree.getCurrentNode()['id']
+                this.$confirm('此操作将永久删除该组件文件夹及该文件夹下所有组件, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    delComponentDir(id).then(res => {
+                        if (res.status === 200) {
+                            this.$refs.compTree.remove(this.$refs.compTree.getNode(id));
+                            this.$message({
+                                type: 'success',
+                                message: '删除成功!'
+                            });
+                        }
+                    })
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消删除'
+                    });
+                });
+            }
         },
         handleClick() {
 
         },
         loadNode(node, resolve) {
+            if (node.level === 0) {
+                // 存储根节点
+                this.compTreeRootNode = node;
+            }
             // 默认id为0,查询根节点
             let id = 0;
             if (node.level > 0) {
                 id = node.data.id
             }
             getComponents(id).then(res => {
+                if (res.data.length === 0) {
+                    node.data.leaf = true
+                    node.data.icon = 'el-icon-folder'
+                }
                 for (let i = 0; i < res.data.length; i++) {
                     if (res.data[i].type === 0) {
                         res.data[i].script_name = res.data[i].group_name
+                        res.data[i].icon = 'el-icon-folder'
                     } else {
                         res.data[i].leaf = true
+                        res.data[i].icon = 'el-icon-tickets'
                     }
                 }
                 resolve(res.data)
@@ -195,11 +317,12 @@ export default {
             })
         },
         click(data, node) {
-            if (node.isLeaf) {
+            if (node.isLeaf && node.data.type === 1) {
                 this.loading = true
                 let id = data.id
                 getComponentScript(id).then(res => {
                     this.code = res.data.script
+                    this.compData = res.data.parameter
                     this.loading = false
                 }).catch(error => {
                     // eslint-disable-next-line no-console
@@ -207,6 +330,8 @@ export default {
                     this.loading = false
                 })
                 this.show = true
+            } else {
+                this.show = false
             }
         }
     }

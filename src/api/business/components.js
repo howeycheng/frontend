@@ -1,9 +1,8 @@
 import request from '@/utils/request'
 
-
 export function getComponents(componentId) {
     const params = {
-        'id' : componentId
+        'id': componentId
     }
     return request({
         url: 'apis/unit/components/',
@@ -12,10 +11,34 @@ export function getComponents(componentId) {
     })
 }
 
+export function addComponentDir(parentId, name, des, type) {
+    const data = {
+        'parentId': parentId,
+        'name': name,
+        'des': des,
+        'type': type
+    }
+    return request({
+        url: 'apis/unit/components/',
+        method: 'post',
+        data: data
+    })
+}
+
+export function delComponentDir(id) {
+    const data = {
+        'id': id
+    }
+    return request({
+        url: 'apis/unit/components/',
+        method: 'delete',
+        data: data
+    })
+}
 
 export function getComponentScript(componentId) {
     const params = {
-        'id' : componentId
+        'id': componentId
     }
     return request({
         url: 'apis/unit/component/script',
@@ -24,24 +47,15 @@ export function getComponentScript(componentId) {
     })
 }
 
-export function addComponentDir(componentId) {
-    const params = {
-        'id' : componentId
+export function addComponentScript(id, name, content) {
+    const data = {
+        'parentId': id,
+        'name': name,
+        'content': content
     }
     return request({
         url: 'apis/unit/component/script',
-        method: 'get',
-        params: params
-    })
-}
-
-export function addComponent(componentId) {
-    const params = {
-        'id' : componentId
-    }
-    return request({
-        url: 'apis/unit/component/script',
-        method: 'get',
-        params: params
+        method: 'post',
+        data: data
     })
 }
