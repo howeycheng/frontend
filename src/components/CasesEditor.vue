@@ -2,13 +2,31 @@
     <div>
         <div id="luckysheet"
              style="margin:0px;padding:0px;position:absolute;width:100%;height:100%;left: 0px;top: 0px;"></div>
+        <el-dialog title="选择组件" :visible.sync="dialogTableVisible">
+            <el-tree
+                :highlight-current=true
+                :props="props"
+                :load="loadNode"
+                lazy
+                ref="compTree"
+                node-key="id"
+            >
+                        <span @dblclick="submitSetComponent(node,data)" slot-scope="{ node, data }">
+                            <i :class="data.icon"></i>
+                            <span style="padding-left: 4px;font-size:14px;">{{ node.label }}</span>
+                        </span>
+            </el-tree>
+        </el-dialog>
     </div>
 
 </template>
 
 <script>
 
-import {getSceneCasesIo, getSceneComp} from "@/api/business/cases";
+
+import {getSceneComponents} from "@/api/business/scene";
+import {getSceneCasesIo} from "@/api/business/cases";
+import {getComponents} from "@/api/business/components";
 
 export default {
     name: "CasesEditor",
@@ -17,9 +35,16 @@ export default {
     },
     data() {
         return {
+            casesData:null,
+            sceneComponentsClazz:null,
+            sceneComponents: null,
+            dialogTableVisible: false,
+            props: {
+                label: 'script_name',
+                isLeaf: 'leaf'
+            },
             //获取路由传递过来的场景ID
-            id: this.$route.query.rqid,
-            scenesComps: [],
+            id: this.$route.query.reqId,
             sheetData: [],
             cellData: {}
         }
@@ -28,29 +53,97 @@ export default {
         this.updateSheet(this.id);
     },
     methods: {
+        // 设置组件原型
+        callSetComponent() {
+            // eslint-disable-next-line no-console
+            console.log("hello");
+            this.dialogTableVisible = true;
+        },
+        // 确认设置组件原型
+        submitSetComponent(node, data) {
+            if (data.leaf === true) {
+                // eslint-disable-next-line no-console
+                console.log(data.script_name);
+                window.luckysheet.setSheetName(data.script_name);
+            }
+            //  设置标签页名称为选择组件名称
+
+            //  加载组件字段名称
+        },
         // 获取当前场景下组件名称
         async updateSheet(id) {
-            this.scenesComps = await getSceneComp(id);
-            for (let i = 0; i < this.scenesComps.data.length; i++) {
-                this.cellData = await getSceneCasesIo(id, i + 1);
+            this.sceneComponents = await getSceneComponents(id);
+            // eslint-disable-next-line no-console
+            console.log(this.sceneComponents.data.length);
+            if (this.sceneComponents.data.length === 0) {
                 this.sheetData.push({
-                    "name": this.scenesComps.data[i]['component_name'], //工作表名称
+                    "name": "右击设置组件原型", //工作表名称
                     "color": "", //工作表颜色
-                    "index": i + "", //工作表索引
+                    "index": "0", //工作表索引
                     "status": 1, //激活状态
                     "order": 0, //工作表的下标
                     "hide": 0,//是否隐藏
-                    "celldata": this.cellData.data[i + 1], //初始化使用的单元格数据
+                    "celldata": [], //初始化使用的单元格数据
                     "config": {},
                     "frozen": {
                         type: "both"//冻结行列
                     },
                     // 底部计数栏不显示
-                    "showstatisticBar":false
+                    "showstatisticBar": false
                 })
+            } else {
+                for (let i = 0; i < this.sceneComponents.data.length; i++) {
+                    this.cellData = await getSceneCasesIo(id, i + 1);
+                    this.sheetData.push({
+                        "name": this.sceneComponents.data[i]['component_name'], //工作表名称
+                        "color": "", //工作表颜色
+                        "index": i + "", //工作表索引
+                        "status": 1, //激活状态
+                        "order": 0, //工作表的下标
+                        "hide": 0,//是否隐藏
+                        "celldata": this.cellData.data[i + 1], //初始化使用的单元格数据
+                        "config": {},
+                        "frozen": {
+                            type: "both"//冻结行列
+                        },
+                        // 底部计数栏不显示
+                        "showstatisticBar": false
+                    })
+                }
             }
             // eslint-disable-next-line no-undef
             this.init();
+        },
+        // 加载组件
+        loadNode(node, resolve) {
+            if (node.level === 0) {
+                // 存储根节点
+                this.compTreeRootNode = node;
+            }
+            // 默认id为0,查询根节点
+            let id = 0;
+            if (node.level > 0) {
+                id = node.data.id
+            }
+            getComponents(id).then(res => {
+                if (res.data.length === 0) {
+                    node.data.leaf = true
+                    node.data.icon = 'el-icon-folder'
+                }
+                for (let i = 0; i < res.data.length; i++) {
+                    if (res.data[i].type === 0) {
+                        res.data[i].script_name = res.data[i].group_name
+                        res.data[i].icon = 'el-icon-folder'
+                    } else {
+                        res.data[i].leaf = true
+                        res.data[i].icon = 'el-icon-tickets'
+                    }
+                }
+                resolve(res.data)
+            }).catch(error => {
+                // eslint-disable-next-line no-console
+                console.log(error)
+            })
         },
         // 初始化用例编辑表
         init() {
@@ -84,10 +177,10 @@ export default {
                     verticalAlignMode: false, // '垂直对齐方式'
                     textWrapMode: false, // '换行方式'
                     textRotateMode: false, // '文本旋转方式'
-                    image:false, // '插入图片'
-                    link:false, // '插入链接'
+                    image: false, // '插入图片'
+                    link: false, // '插入链接'
                     chart: false, // '图表'（图标隐藏，但是如果配置了chart插件，右击仍然可以新建图表）
-                    postil:  false, //'批注'
+                    postil: false, //'批注'
                     pivotTable: false,  //'数据透视表'
                     function: false, // '公式'
                     frozenMode: false, // '冻结方式'
@@ -97,13 +190,14 @@ export default {
                     splitColumn: false, // '分列'
                     screenshot: false, // '截图'
                     findAndReplace: true, // '查找替换'
-                    protection:false, // '工作表保护'
-                    print:false, // '打印'
+                    protection: false, // '工作表保护'
+                    print: false, // '打印'
                 },
                 // 右上角功能按钮
                 functionButton: '<button id="but_download" class="btn btn-primary" style="padding:3px 6px;font-size: 12px;margin-right: 10px;">下载</button> <button id="" class="btn btn-primary" style="padding:3px 6px;font-size: 12px;margin-right: 10px;">保存</button>',
                 // 自定义sheet页右击菜单
                 sheetRightClickConfig: {
+                    setComponent: true, // 设置组件
                     delete: true, // 删除
                     copy: true, // 复制
                     rename: false, //重命名
@@ -147,8 +241,7 @@ export default {
                     console.log(this.scenesComps[i]['component_name']);
                 }
             });
-            // eslint-disable-next-line no-undef
-            // luckysheet.setHorizontalFrozen(false)
+            document.getElementById('luckysheetsheetconfigSetComponent').addEventListener('click', this.callSetComponent);
         }
     }
 }

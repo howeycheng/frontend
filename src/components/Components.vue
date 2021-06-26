@@ -63,7 +63,7 @@
                     >
                         <span slot-scope="{ node, data }">
                             <i :class="data.icon"></i>
-                            <span style="padding-left: 4px;font-size:14px;color: #0077aa">{{ node.label }}</span>
+                            <span style="padding-left: 4px;font-size:14px;">{{ node.label }}</span>
                         </span>
                     </el-tree>
                 </el-aside>
