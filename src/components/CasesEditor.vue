@@ -8,14 +8,19 @@
                 :props="props"
                 :load="loadNode"
                 lazy
-                ref="compTree"
+                ref="casesEditorComponentTree"
                 node-key="id"
+                @node-click="setComponentNameInput"
             >
-                        <span @dblclick="submitSetComponent(node,data)" slot-scope="{ node, data }">
+                        <span slot-scope="{ node, data }">
                             <i :class="data.icon"></i>
                             <span style="padding-left: 4px;font-size:14px;">{{ node.label }}</span>
                         </span>
             </el-tree>
+
+            <el-input v-model="componentName" placeholder="组件名称" style="margin-top: 10px">
+                <el-button type="success" slot="append" @click="submitSetComponent">确定</el-button>
+            </el-input>
         </el-dialog>
     </div>
 
@@ -26,7 +31,7 @@
 
 import {getSceneComponents} from "@/api/business/scene";
 import {getSceneCasesIo} from "@/api/business/cases";
-import {getComponents} from "@/api/business/components";
+import {getComponentParameters, getComponents} from "@/api/business/components";
 
 export default {
     name: "CasesEditor",
@@ -35,8 +40,11 @@ export default {
     },
     data() {
         return {
-            casesData:null,
-            sceneComponentsClazz:null,
+            componentName: '', // 组件名称
+            casesData: null,
+            componentsClazz: [], // 组件原型
+            casesList: [], // 用例列表
+            sceneComponentsClazz: null,
             sceneComponents: null,
             dialogTableVisible: false,
             props: {
@@ -46,7 +54,18 @@ export default {
             //获取路由传递过来的场景ID
             id: this.$route.query.reqId,
             sheetData: [],
-            cellData: {}
+            cellData: {},
+            hooks: {
+                cellEditBefore: function (cell) {
+                    // eslint-disable-next-line no-console
+                    console.log(cell['0'].row);
+                    // eslint-disable-next-line no-console
+                    if (cell['0'].row[0] === 0 && cell['0'].row[1] === 0) {
+                        // eslint-disable-next-line no-console
+                        console.log("禁止编辑");
+                    }
+                },
+            }
         }
     },
     mounted() {
@@ -55,26 +74,75 @@ export default {
     methods: {
         // 设置组件原型
         callSetComponent() {
-            // eslint-disable-next-line no-console
-            console.log("hello");
             this.dialogTableVisible = true;
         },
-        // 确认设置组件原型
-        submitSetComponent(node, data) {
-            if (data.leaf === true) {
-                // eslint-disable-next-line no-console
-                console.log(data.script_name);
-                window.luckysheet.setSheetName(data.script_name);
+        setComponentNameInput(data, node) {
+            if (node !== null && data.leaf === true) {
+                // 若选中的节点为组件节点，将下方组件名称输入框设置为选中组件名称
+                this.componentName = data.script_name;
             }
+        },
+        // 确认设置组件原型
+        submitSetComponent() {
             //  设置标签页名称为选择组件名称
+            let currentNode = this.$refs.casesEditorComponentTree.getCurrentNode();
+            if (currentNode !== null) {
+                if (currentNode.leaf === true && this.componentName !== "") {
+                    //  设置标签页名称为选择组件名称
+                    window.luckysheet.setSheetName(this.componentName);
+                    // 设置当前组件原型
+                    let componentIndex = window.luckysheet.getSheet().index;
+                    this.componentsClazz[componentIndex] = {
+                        "componentClazzId": currentNode.id,
+                        "componentClazzName": currentNode.script_name
+                    };
+                    //  加载组件字段名称
+                    getComponentParameters(currentNode['id']).then(res => {
+                        window.luckysheet.setCellValue(0, 0, {
+                            "v": "用例名称", //内容的原始值
+                            "bg": "#f6b26b", //背景为 "#f6b26b"
+                            "fc": "#990000", //字体颜色为 "#990000"
+                            "bl": 1, //字体加粗
+                        });
+                        for (let i = 0; i < res.data.length; i++) {
+                            //    设置参数名称
+                            let cellValue = {
+                                "v": res.data[i]['target_field'], //内容的原始值
+                                "bg": "#f6b26b", //背景为 "#f6b26b"
+                                "fc": "#990000", //字体颜色为 "#990000"
+                                "bl": 1, //字体加粗
+                            }
+                            window.luckysheet.setCellValue(0, i + 1, cellValue);
+                        }
+                    })
+                    // 关闭对话框
+                    this.dialogTableVisible = false;
+                }
+            }
+        },
+        // 上传数据
+        upload() {
+            // eslint-disable-next-line no-console
+            console.log(window.luckysheet.getAllSheets());
+            // eslint-disable-next-line no-console
+            let componentData = [];
+            let componentsName = [];
+            let sheetData = window.luckysheet.getAllSheets();
+            for (let i = 0; i < sheetData.length; i++) {
+                componentData[i] = sheetData[i].celldata;
+                componentsName[i] = sheetData[i].name;
+            }
+            // eslint-disable-next-line no-console
+            console.log(componentData);
+            // eslint-disable-next-line no-console
+            console.log(componentsName);
 
-            //  加载组件字段名称
+            // eslint-disable-next-line no-console
+            console.log(this.componentsClazz);
         },
         // 获取当前场景下组件名称
         async updateSheet(id) {
             this.sceneComponents = await getSceneComponents(id);
-            // eslint-disable-next-line no-console
-            console.log(this.sceneComponents.data.length);
             if (this.sceneComponents.data.length === 0) {
                 this.sheetData.push({
                     "name": "右击设置组件原型", //工作表名称
@@ -85,9 +153,7 @@ export default {
                     "hide": 0,//是否隐藏
                     "celldata": [], //初始化使用的单元格数据
                     "config": {},
-                    "frozen": {
-                        type: "both"//冻结行列
-                    },
+                    "row": "20",
                     // 底部计数栏不显示
                     "showstatisticBar": false
                 })
@@ -103,9 +169,6 @@ export default {
                         "hide": 0,//是否隐藏
                         "celldata": this.cellData.data[i + 1], //初始化使用的单元格数据
                         "config": {},
-                        "frozen": {
-                            type: "both"//冻结行列
-                        },
                         // 底部计数栏不显示
                         "showstatisticBar": false
                     })
@@ -153,6 +216,7 @@ export default {
                 title: '用例编辑器', // 设定表格名称
                 lang: 'zh', // 设定表格语言
                 // plugins: ['chart'],
+                hook: this.hooks,
                 showtoolbar: false,
                 showinfobar: true,
                 showtoolbarConfig: {
@@ -194,7 +258,7 @@ export default {
                     print: false, // '打印'
                 },
                 // 右上角功能按钮
-                functionButton: '<button id="but_download" class="btn btn-primary" style="padding:3px 6px;font-size: 12px;margin-right: 10px;">下载</button> <button id="" class="btn btn-primary" style="padding:3px 6px;font-size: 12px;margin-right: 10px;">保存</button>',
+                functionButton: '<button id="but_upload" class="btn btn-primary" style="padding:3px 6px;font-size: 12px;margin-right: 10px;">保存</button>',
                 // 自定义sheet页右击菜单
                 sheetRightClickConfig: {
                     setComponent: true, // 设置组件
@@ -233,14 +297,7 @@ export default {
                 },
                 data: this.sheetData,
             });
-            // eslint-disable-next-line no-unused-vars
-            document.getElementById('but_download').addEventListener('click', event => {
-                // eslint-disable-next-line no-console
-                for (let i = 0; i < this.scenesComps.length; i++) {
-                    // eslint-disable-next-line no-console
-                    console.log(this.scenesComps[i]['component_name']);
-                }
-            });
+            document.getElementById('but_upload').addEventListener('click', this.upload);
             document.getElementById('luckysheetsheetconfigSetComponent').addEventListener('click', this.callSetComponent);
         }
     }
