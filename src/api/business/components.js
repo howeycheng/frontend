@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-// 鑾峰彇缁勪欢
+// 获取组件
 export function getComponents(componentId) {
     const params = {
         'id': componentId
@@ -12,7 +12,7 @@ export function getComponents(componentId) {
     })
 }
 
-// 鑾峰彇缁勪欢鐩綍
+// 获取组件目录
 export function addComponentDir(parentId, name, des, type) {
     const data = {
         'parentId': parentId,
@@ -27,7 +27,7 @@ export function addComponentDir(parentId, name, des, type) {
     })
 }
 
-// 鍒犻櫎缁勪欢鐩綍
+// 删除组件目录
 export function delComponentDir(id) {
     const data = {
         'id': id
@@ -39,7 +39,7 @@ export function delComponentDir(id) {
     })
 }
 
-// 鑾峰彇鎸囧畾缁勪欢鑴氭湰
+// 获取指定组件脚本
 export function getComponentScript(componentId) {
     const params = {
         'id': componentId
@@ -51,7 +51,7 @@ export function getComponentScript(componentId) {
     })
 }
 
-// 澧炲姞缁勪欢鑴氭湰
+// 增加组件脚本
 export function addComponentScript(id, name, content) {
     const data = {
         'parentId': id,
@@ -64,8 +64,7 @@ export function addComponentScript(id, name, content) {
         data: data
     })
 }
-
-// 鑾峰彇缁勪欢
+// 获取组件
 export function getComponentParameters(componentId) {
     const params = {
         'id': componentId
