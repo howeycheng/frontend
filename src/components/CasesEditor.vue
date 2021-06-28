@@ -66,7 +66,7 @@ export default {
         callSetComponent() {
             this.dialogTableVisible = true;
         },
-	setComponentNameInput(data, node) {
+        setComponentNameInput(data, node) {
             if (node !== null && data.leaf === true) {
                 // 若选中的节点为组件节点，将下方组件名称输入框设置为选中组件名称
                 this.componentName = data.script_name;
