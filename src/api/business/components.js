@@ -1,5 +1,6 @@
 import request from '@/utils/request'
 
+// 获取组件
 export function getComponents(componentId) {
     const params = {
         'id': componentId
@@ -11,6 +12,7 @@ export function getComponents(componentId) {
     })
 }
 
+// 获取组件目录
 export function addComponentDir(parentId, name, des, type) {
     const data = {
         'parentId': parentId,
@@ -25,6 +27,7 @@ export function addComponentDir(parentId, name, des, type) {
     })
 }
 
+// 删除组件目录
 export function delComponentDir(id) {
     const data = {
         'id': id
@@ -36,6 +39,7 @@ export function delComponentDir(id) {
     })
 }
 
+// 获取指定组件脚本
 export function getComponentScript(componentId) {
     const params = {
         'id': componentId
@@ -47,6 +51,7 @@ export function getComponentScript(componentId) {
     })
 }
 
+// 增加组件脚本
 export function addComponentScript(id, name, content) {
     const data = {
         'parentId': id,
@@ -57,5 +62,16 @@ export function addComponentScript(id, name, content) {
         url: 'apis/unit/component/script',
         method: 'post',
         data: data
+    })
+}
+// 获取组件
+export function getComponentParameters(componentId) {
+    const params = {
+        'id': componentId
+    }
+    return request({
+        url: 'apis/unit/component/parameter',
+        method: 'get',
+        params: params
     })
 }

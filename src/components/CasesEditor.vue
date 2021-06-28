@@ -8,14 +8,18 @@
                 :props="props"
                 :load="loadNode"
                 lazy
-                ref="compTree"
+                ref="casesEditorComponentTree"
                 node-key="id"
+		@node-click="setComponentNameInput"
             >
-                        <span @dblclick="submitSetComponent(node,data)" slot-scope="{ node, data }">
+                        <span slot-scope="{ node, data }">
                             <i :class="data.icon"></i>
                             <span style="padding-left: 4px;font-size:14px;">{{ node.label }}</span>
                         </span>
             </el-tree>
+            <el-input v-model="componentName" placeholder="组件名称" style="margin-top: 10px">
+                <el-button type="success" slot="append" @click="submitSetComponent">确定</el-button>
+            </el-input>
         </el-dialog>
     </div>
 
@@ -25,8 +29,8 @@
 
 
 import {getSceneComponents} from "@/api/business/scene";
-import {getSceneCasesIo} from "@/api/business/cases";
-import {getComponents} from "@/api/business/components";
+import {getSceneCasesIo, updateSceneCasesIo} from "@/api/business/cases";
+import {getComponentParameters,getComponents} from "@/api/business/components";
 
 export default {
     name: "CasesEditor",
@@ -35,8 +39,11 @@ export default {
     },
     data() {
         return {
-            casesData:null,
-            sceneComponentsClazz:null,
+            componentName: '', // 组件名称
+            // 用例数据
+            casesData: [],
+            componentsClazz: [], // 组件原型
+            sceneComponentsClazz: null,
             sceneComponents: null,
             dialogTableVisible: false,
             props: {
@@ -46,7 +53,9 @@ export default {
             //获取路由传递过来的场景ID
             id: this.$route.query.reqId,
             sheetData: [],
-            cellData: {}
+            cellData: {},
+            // 组件信息
+            componentsInfo: []
         }
     },
     mounted() {
@@ -55,20 +64,94 @@ export default {
     methods: {
         // 设置组件原型
         callSetComponent() {
-            // eslint-disable-next-line no-console
-            console.log("hello");
             this.dialogTableVisible = true;
         },
-        // 确认设置组件原型
-        submitSetComponent(node, data) {
-            if (data.leaf === true) {
-                // eslint-disable-next-line no-console
-                console.log(data.script_name);
-                window.luckysheet.setSheetName(data.script_name);
+	setComponentNameInput(data, node) {
+            if (node !== null && data.leaf === true) {
+                // 若选中的节点为组件节点，将下方组件名称输入框设置为选中组件名称
+                this.componentName = data.script_name;
             }
+        },
+        // 确认设置组件原型
+        submitSetComponent() {
             //  设置标签页名称为选择组件名称
-
-            //  加载组件字段名称
+            let currentNode = this.$refs.casesEditorComponentTree.getCurrentNode();
+            if (currentNode !== null) {
+                if (currentNode.leaf === true && this.componentName !== "") {
+                    //  设置标签页名称为选择组件名称
+                    window.luckysheet.setSheetName(this.componentName);
+                    // 设置当前组件原型
+                    let componentIndex = window.luckysheet.getSheet().index;
+                    this.componentsClazz[componentIndex] = {
+                        "componentClazzId": currentNode.id,
+                        "componentClazzName": currentNode.script_name
+                    };
+                    //  加载组件字段名称
+                    getComponentParameters(currentNode['id']).then(res => {
+                        window.luckysheet.setCellValue(0, 0, {
+                            "v": "用例名称", //内容的原始值
+                            "bg": "#f6b26b", //背景为 "#f6b26b"
+                            "fc": "#990000", //字体颜色为 "#990000"
+                            "bl": 1, //字体加粗
+                        });
+                        for (let i = 0; i < res.data.length; i++) {
+                            //    设置参数名称
+                            let cellValue = {
+                                "v": res.data[i]['target_field'], //内容的原始值
+                                "bg": "#f6b26b", //背景为 "#f6b26b"
+                                "fc": "#990000", //字体颜色为 "#990000"
+                                "bl": 1, //字体加粗
+                            }
+                            window.luckysheet.setCellValue(0, i + 1, cellValue);
+                        }
+                    })
+                    // 关闭对话框
+                    this.dialogTableVisible = false;
+                }
+            }
+        },
+        upload() {
+            let sheets = window.luckysheet.getAllSheets();
+            // 过滤表格中空数据，行数据以从上到下，第一条出现null值的数据行结束，列数据以第一行数据是否有列数据为依据
+            for (let i = 0; i < sheets.length; i++) {
+                let sheetData = sheets[i].data
+                let colNum = 0;
+                // 获取列数据数量
+                for (let j = 0; j < sheetData[0].length; j++) {
+                    if (sheetData[0][j] === null) {
+                        colNum = j
+                        break;
+                    }
+                }
+                let componentData = [];
+                for (let j = 0; j < sheetData.length; j++) {
+                    if (sheetData[j][0] === null) {
+                        // 过滤用例名称为空的数据行
+                        break;
+                    }
+                    let componentRowData = [];
+                    for (let k = 0; k < colNum; k++) {
+                        // 根据列数据数量获取值
+                        if (sheetData[j][k] === null) {
+                            // 列数据，若为null，则置为""
+                            componentRowData[k] = ""
+                        } else {
+                            componentRowData[k] = sheetData[j][k]["v"];
+                        }
+                    }
+                    componentData[j] = componentRowData
+                }
+                // 将过滤后的数据存储到casesData
+                this.casesData[i] = componentData
+            }
+            // eslint-disable-next-line no-console
+            console.log(this.casesData);
+            // eslint-disable-next-line no-console
+            console.log(this.componentsInfo);
+            updateSceneCasesIo(this.id,this.casesData,this.componentsInfo).then(res=>{
+                // eslint-disable-next-line no-console
+                console.log(res)
+            })
         },
         // 获取当前场景下组件名称
         async updateSheet(id) {
@@ -85,14 +168,17 @@ export default {
                     "hide": 0,//是否隐藏
                     "celldata": [], //初始化使用的单元格数据
                     "config": {},
-                    "frozen": {
-                        type: "both"//冻结行列
-                    },
+                    "row": "20",
                     // 底部计数栏不显示
                     "showstatisticBar": false
                 })
             } else {
                 for (let i = 0; i < this.sceneComponents.data.length; i++) {
+                    this.componentsInfo[i] = {
+                        "componentsClazzId": this.sceneComponents.data[i]['fk_com_id'],
+                        "componentsClazzName": this.sceneComponents.data[i]['script_name'],
+                        "componentsName": this.sceneComponents.data[i]['component_name']
+                    }
                     this.cellData = await getSceneCasesIo(id, i + 1);
                     this.sheetData.push({
                         "name": this.sceneComponents.data[i]['component_name'], //工作表名称
@@ -103,9 +189,6 @@ export default {
                         "hide": 0,//是否隐藏
                         "celldata": this.cellData.data[i + 1], //初始化使用的单元格数据
                         "config": {},
-                        "frozen": {
-                            type: "both"//冻结行列
-                        },
                         // 底部计数栏不显示
                         "showstatisticBar": false
                     })
@@ -194,7 +277,7 @@ export default {
                     print: false, // '打印'
                 },
                 // 右上角功能按钮
-                functionButton: '<button id="but_download" class="btn btn-primary" style="padding:3px 6px;font-size: 12px;margin-right: 10px;">下载</button> <button id="" class="btn btn-primary" style="padding:3px 6px;font-size: 12px;margin-right: 10px;">保存</button>',
+                functionButton: '<button id="but_upload" class="btn btn-primary" style="padding:3px 6px;font-size: 12px;margin-right: 10px;">保存</button>',
                 // 自定义sheet页右击菜单
                 sheetRightClickConfig: {
                     setComponent: true, // 设置组件
@@ -234,13 +317,7 @@ export default {
                 data: this.sheetData,
             });
             // eslint-disable-next-line no-unused-vars
-            document.getElementById('but_download').addEventListener('click', event => {
-                // eslint-disable-next-line no-console
-                for (let i = 0; i < this.scenesComps.length; i++) {
-                    // eslint-disable-next-line no-console
-                    console.log(this.scenesComps[i]['component_name']);
-                }
-            });
+            document.getElementById('but_upload').addEventListener('click', this.upload);
             document.getElementById('luckysheetsheetconfigSetComponent').addEventListener('click', this.callSetComponent);
         }
     }
